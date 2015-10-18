@@ -28,36 +28,41 @@ use pocketmine\scheduler\AsyncTask;
 use pocketmine\Server;
 
 class BroadcastTask extends AsyncTask {
-    /** @var Broadcaster */
-    private $broadcaster;
-
     /** @var string */
     private $message, $channel;
 
+    /** @var array */
+    private $data;
+
     /**
-     * @param Broadcaster $broadcaster
      * @param string $message
      * @param string $channel
      */
-    public function __construct(Broadcaster $broadcaster, $message, $channel = ""){
-        $this->broadcaster = $broadcaster;
+    public function __construct($message, $channel = ""){
         $this->message = $message;
         $this->channel = $channel;
+
+        $this->data = [
+            "token" => Broadcaster::$token,
+            "channel" => Broadcaster::$channel,
+            "disableWebPagePreview" => Broadcaster::$disableWebPagePreview,
+            "enableMarkdownParsing" => Broadcaster::$enableMarkdownParsing
+        ];
     }
 
     public function onRun(){
         $data = [
-            "chat_id" => ($this->channel === "") ? $this->broadcaster->channel : $this->channel,
+            "chat_id" => ($this->channel === "") ? $this->data["channel"] : $this->channel,
             "text" => $this->message,
-            "disable_web_page_preview" => $this->broadcaster->disableWebPagePreview
+            "disable_web_page_preview" => $this->data["disableWebPagePreview"]
         ];
 
-        if($this->broadcaster->enableMarkdownParsing){
+        if($this->data["enableMarkdownParsing"]){
             $data["parse_mode"] = "Markdown";
         }
 
         $session = curl_init();
-        curl_setopt($session, CURLOPT_URL, "https://api.telegram.org/bot" . $this->broadcaster->token . "/sendMessage");
+        curl_setopt($session, CURLOPT_URL, "https://api.telegram.org/bot" . $this->data["token"] . "/sendMessage");
         curl_setopt($session, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($session, CURLOPT_FOLLOWLOCATION, true);
         curl_setopt($session, CURLOPT_POST, 1);
@@ -70,8 +75,8 @@ class BroadcastTask extends AsyncTask {
     }
 
     public function onCompletion(Server $server){
-        if($this->broadcaster->debugMode and $this->hasResult()){
-            $this->broadcaster->getLogger()->debug($this->getResult());
+        if(Broadcaster::$debugMode and $this->hasResult()){
+            Broadcaster::getInstance()->getLogger()->debug($this->getResult());
         }
     }
 }
