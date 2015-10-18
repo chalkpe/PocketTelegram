@@ -1,5 +1,5 @@
 # Broadcaster
-A simple PocketMine-MP plugin that broadcast server chats to Telegram Channel
+A simple PocketMine-MP plugin that broadcasts messages to your Telegram Channel
 
 ## License
 ```
