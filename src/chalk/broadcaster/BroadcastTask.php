@@ -25,6 +25,7 @@
 namespace chalk\broadcaster;
 
 use pocketmine\scheduler\AsyncTask;
+use pocketmine\Server;
 
 class BroadcastTask extends AsyncTask {
     /** @var Broadcaster */
@@ -68,7 +69,7 @@ class BroadcastTask extends AsyncTask {
         curl_close($session);
     }
 
-    public function onCompletion($server){
+    public function onCompletion(Server $server){
         if($this->broadcaster->debugMode and $this->hasResult()){
             Broadcaster::getInstance()->getLogger()->debug($this->getResult());
         }
