@@ -34,10 +34,10 @@ class Broadcaster extends PluginBase implements Listener {
     private static $instance = null;
 
     /** @var string */
-    public static $token = "", $channel = "";
+    public $token = "", $channel = "";
 
     /** @var bool */
-    public static $broadcastPlayerChats = false, $disableWebPagePreview = true, $enableMarkdownParsing = false, $debugMode = false;
+    public $broadcastPlayerChats = false, $disableWebPagePreview = true, $enableMarkdownParsing = false, $debugMode = false;
 
     public function onLoad(){
         self::$instance = $this;
@@ -49,20 +49,20 @@ class Broadcaster extends PluginBase implements Listener {
 
     public function onEnable(){
         $this->saveDefaultConfig();
-        self::$token = $this->getConfig()->get("token", "");
-        self::$channel = $this->getConfig()->get("channel", "");
+        $this->token = $this->getConfig()->get("token", "");
+        $this->channel = $this->getConfig()->get("channel", "");
 
-        if(self::$token === "" || self::$channel === ""){
+        if($this->token === "" || $this->channel === ""){
             $this->getLogger()->alert("You need to set your configs to enable this plugin");
             $this->getLogger()->alert("-> " . $this->getDataFolder() . "config.yml");
             $this->getServer()->getPluginManager()->disablePlugin($this);
             return;
         }
 
-        self::$broadcastPlayerChats = $this->getConfig()->get("broadcastPlayerChats", false);
-        self::$disableWebPagePreview = $this->getConfig()->get("disableWebPagePreview", true);
-        self::$enableMarkdownParsing = $this->getConfig()->get("enableMarkdownParsing", false);
-        self::$debugMode = $this->getConfig()->get("debugMode", false);
+        $this->broadcastPlayerChats = $this->getConfig()->get("broadcastPlayerChats", false);
+        $this->disableWebPagePreview = $this->getConfig()->get("disableWebPagePreview", true);
+        $this->enableMarkdownParsing = $this->getConfig()->get("enableMarkdownParsing", false);
+        $this->debugMode = $this->getConfig()->get("debugMode", false);
 
         $this->getServer()->getPluginManager()->registerEvents($this, $this);
     }
@@ -79,11 +79,11 @@ class Broadcaster extends PluginBase implements Listener {
      * @param string $channel
      */
     public static function broadcast($message, $channel = ""){
-        Server::getInstance()->getScheduler()->scheduleAsyncTask(new BroadcastTask($message, $channel));
+        Server::getInstance()->getScheduler()->scheduleAsyncTask(new BroadcastTask(Broadcaster::getInstance(), $message, $channel));
     }
 
     public function onPlayerChat(PlayerChatEvent $event){
-        if(Broadcaster::$broadcastPlayerChats){
+        if($this->broadcastPlayerChats){
             Broadcaster::broadcast($this->getServer()->getLanguage()->translateString($event->getFormat(), [$event->getPlayer()->getName(), $event->getMessage()]));
         }
     }

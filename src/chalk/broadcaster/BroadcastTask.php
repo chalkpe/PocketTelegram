@@ -27,31 +27,36 @@ namespace chalk\broadcaster;
 use pocketmine\scheduler\AsyncTask;
 
 class BroadcastTask extends AsyncTask {
+    /** @var Broadcaster */
+    private $broadcaster;
+
     /** @var string */
     private $message, $channel;
 
     /**
+     * @param Broadcaster $broadcaster
      * @param string $message
      * @param string $channel
      */
-    public function __construct($message, $channel = ""){
+    public function __construct(Broadcaster $broadcaster, $message, $channel = ""){
+        $this->broadcaster = $broadcaster;
         $this->message = $message;
         $this->channel = $channel;
     }
 
     public function onRun(){
         $data = [
-            "chat_id" => ($this->channel === "") ? Broadcaster::$channel : $this->channel,
+            "chat_id" => ($this->channel === "") ? $this->broadcaster->channel : $this->channel,
             "text" => $this->message,
-            "disable_web_page_preview" => Broadcaster::$disableWebPagePreview
+            "disable_web_page_preview" => $this->broadcaster->disableWebPagePreview
         ];
 
-        if(Broadcaster::$enableMarkdownParsing){
+        if($this->broadcaster->enableMarkdownParsing){
             $data["parse_mode"] = "Markdown";
         }
 
         $session = curl_init();
-        curl_setopt($session, CURLOPT_URL, "https://api.telegram.org/bot" . Broadcaster::$token . "/sendMessage");
+        curl_setopt($session, CURLOPT_URL, "https://api.telegram.org/bot" . $this->broadcaster->token . "/sendMessage");
         curl_setopt($session, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($session, CURLOPT_FOLLOWLOCATION, true);
         curl_setopt($session, CURLOPT_POST, 1);
@@ -59,13 +64,13 @@ class BroadcastTask extends AsyncTask {
         curl_setopt($session, CURLOPT_SSL_VERIFYPEER, 0);
         curl_setopt($session, CURLOPT_CONNECTTIMEOUT, 500);
 
-        $this->onResult($result = curl_exec($session));
+        $this->setResult(curl_exec($session));
         curl_close($session);
     }
 
-    public function onResult($result){
-        if(Broadcaster::$debugMode){
-            Broadcaster::getInstance()->getLogger()->debug($result);
+    public function onCompletion($server){
+        if($this->broadcaster->debugMode and $this->hasResult()){
+            Broadcaster::getInstance()->getLogger()->debug($this->getResult());
         }
     }
 }
