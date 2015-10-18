@@ -25,22 +25,39 @@
 namespace chalk\broadcaster;
 
 use pocketmine\event\Listener;
-use pocketmine\event\player\PlayerChatEvent;
 use pocketmine\plugin\PluginBase;
+use pocketmine\Server;
 
 class Broadcaster extends PluginBase implements Listener {
+    /** @var Broadcaster */
+    private static $instance = null;
+
     /** @var string */
-    public $token = "", $chatId = "";
+    public static $token = "", $chatId = "";
+
+    public function onLoad(){
+        self::$instance = $this;
+    }
 
     public function onEnable(){
         $this->saveDefaultConfig();
-        $this->token = $this->getConfig()->get("token");
-        $this->chatId = $this->getConfig()->get("chatId");
+        self::$token = $this->getConfig()->get("token");
+        self::$chatId = $this->getConfig()->get("chatId");
 
         $this->getServer()->getPluginManager()->registerEvents($this, $this);
     }
 
-    public function onPlayerChat(PlayerChatEvent $event){
-        $this->getServer()->getScheduler()->scheduleAsyncTask(new BroadcastTask($this, $event));
+    /**
+     * @return Broadcaster
+     */
+    public static function getInstance(){
+        return self::$instance;
+    }
+
+    /**
+     * @param string $str
+     */
+    public static function broadcast($str){
+        Server::getInstance()->getScheduler()->scheduleAsyncTask(new BroadcastTask($str));
     }
 }

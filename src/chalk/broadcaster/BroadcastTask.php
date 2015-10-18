@@ -24,47 +24,41 @@
 
 namespace chalk\broadcaster;
 
-use pocketmine\event\player\PlayerChatEvent;
 use pocketmine\scheduler\AsyncTask;
 
 class BroadcastTask extends AsyncTask {
-    /** @var Broadcaster */
-    private $broadcaster;
-
-    /** @var PlayerChatEvent */
-    private $event;
+    /** @var string */
+    private $message;
 
     /**
      * BroadcastTask constructor.
-     * @param Broadcaster $broadcaster
-     * @param PlayerChatEvent $event
+     * @param string $message
      */
-    public function __construct(Broadcaster $broadcaster, PlayerChatEvent $event){
-        $this->broadcaster = $broadcaster;
-        $this->event = $event;
+    public function __construct($message){
+        $this->message = $message;
     }
 
     public function onRun(){
-        try{
-            $data = [
-                "chat_id" => $this->broadcaster->chatId,
-                "text" => $this->broadcaster->getServer()->getLanguage()->translateString($this->event->getFormat(), [$this->event->getPlayer()->getName(), $this->event->getMessage()]),
-                "disable_web_page_preview" => "true"
-            ];
+        $data = [
+            "chat_id" => Broadcaster::$chatId,
+            "text" => $this->message,
+            "disable_web_page_preview" => "true"
+        ];
 
-            $ch = curl_init();
-            curl_setopt($ch, CURLOPT_URL, "https://api.telegram.org/bot" . $this->broadcaster->token . "/sendMessage");
-            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-            curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
-            curl_setopt($ch, CURLOPT_POST, 1);
-            curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
-            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
-            curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 500);
+        $session = curl_init();
+        curl_setopt($session, CURLOPT_URL, "https://api.telegram.org/bot" . Broadcaster::$token . "/sendMessage");
+        curl_setopt($session, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($session, CURLOPT_FOLLOWLOCATION, true);
+        curl_setopt($session, CURLOPT_POST, 1);
+        curl_setopt($session, CURLOPT_POSTFIELDS, $data);
+        curl_setopt($session, CURLOPT_SSL_VERIFYPEER, 0);
+        curl_setopt($session, CURLOPT_CONNECTTIMEOUT, 500);
 
-            $this->broadcaster->getLogger()->debug(curl_exec($ch));
-            curl_close($ch);
-        }catch(\Exception $e){
-            $this->broadcaster->getLogger()->error($e);
-        }
+        $this->onResult($result = curl_exec($session));
+        curl_close($session);
+    }
+
+    public function onResult($result){
+        Broadcaster::getInstance()->getLogger()->debug($result);
     }
 }
