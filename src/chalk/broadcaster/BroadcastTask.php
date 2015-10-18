@@ -28,19 +28,21 @@ use pocketmine\scheduler\AsyncTask;
 
 class BroadcastTask extends AsyncTask {
     /** @var string */
-    private $message;
+    private $message, $channel;
 
     /**
      * BroadcastTask constructor.
      * @param string $message
+     * @param string $channel
      */
-    public function __construct($message){
+    public function __construct($message, $channel = ""){
         $this->message = $message;
+        $this->channel = $channel;
     }
 
     public function onRun(){
         $data = [
-            "chat_id" => Broadcaster::$chatId,
+            "chat_id" => ($this->channel === "") ? Broadcaster::$channel : $this->channel,
             "text" => $this->message,
             "disable_web_page_preview" => "true"
         ];

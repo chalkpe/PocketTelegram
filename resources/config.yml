@@ -1,0 +1,3 @@
+token: "Create your Telegram bot token from https://telegram.me/BotFather"
+channel: "@YourTelegramChannelName"
+broadcastPlayerChats: false
