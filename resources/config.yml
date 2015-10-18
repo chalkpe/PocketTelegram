@@ -15,3 +15,7 @@ disableWebPagePreview: true
 # If it true, Markdown syntax will be applied to your messages
 # See "https://core.telegram.org/bots/api#using-markdown"
 enableMarkdownParsing: false
+
+
+# If it true, the plugin shows Telegram API responses to your console
+debugMode: false

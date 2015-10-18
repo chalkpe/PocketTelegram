@@ -37,7 +37,7 @@ class Broadcaster extends PluginBase implements Listener {
     public static $token = "", $channel = "";
 
     /** @var bool */
-    public static $broadcastPlayerChats = false, $disableWebPagePreview = true, $enableMarkdownParsing = false;
+    public static $broadcastPlayerChats = false, $disableWebPagePreview = true, $enableMarkdownParsing = false, $debugMode = false;
 
     public function onLoad(){
         self::$instance = $this;
@@ -62,6 +62,7 @@ class Broadcaster extends PluginBase implements Listener {
         self::$broadcastPlayerChats = $this->getConfig()->get("broadcastPlayerChats", false);
         self::$disableWebPagePreview = $this->getConfig()->get("disableWebPagePreview", true);
         self::$enableMarkdownParsing = $this->getConfig()->get("enableMarkdownParsing", false);
+        self::$debugMode = $this->getConfig()->get("debugMode", false);
 
         $this->getServer()->getPluginManager()->registerEvents($this, $this);
     }

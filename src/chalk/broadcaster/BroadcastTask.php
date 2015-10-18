@@ -64,6 +64,8 @@ class BroadcastTask extends AsyncTask {
     }
 
     public function onResult($result){
-        Broadcaster::getInstance()->getLogger()->debug($result);
+        if(Broadcaster::$debugMode){
+            Broadcaster::getInstance()->getLogger()->debug($result);
+        }
     }
 }
