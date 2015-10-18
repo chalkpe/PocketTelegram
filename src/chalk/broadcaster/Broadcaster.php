@@ -36,14 +36,32 @@ class Broadcaster extends PluginBase implements Listener {
     /** @var string */
     public static $token = "", $channel = "";
 
+    /** @var bool */
+    public static $broadcastPlayerChats = false, $disableWebPagePreview = true, $enableMarkdownParsing = false;
+
     public function onLoad(){
         self::$instance = $this;
     }
 
+    public function onDisable(){
+        self::$instance = null;
+    }
+
     public function onEnable(){
         $this->saveDefaultConfig();
-        self::$token = $this->getConfig()->get("token");
-        self::$channel = $this->getConfig()->get("channel");
+        self::$token = $this->getConfig()->get("token", "");
+        self::$channel = $this->getConfig()->get("channel", "");
+
+        if(self::$token === "" || self::$channel === ""){
+            $this->getLogger()->alert("You need to set your configs to enable this plugin");
+            $this->getLogger()->alert("-> " . $this->getDataFolder() . "config.yml");
+            $this->getServer()->getPluginManager()->disablePlugin($this);
+            return;
+        }
+
+        self::$broadcastPlayerChats = $this->getConfig()->get("broadcastPlayerChats", false);
+        self::$disableWebPagePreview = $this->getConfig()->get("disableWebPagePreview", true);
+        self::$enableMarkdownParsing = $this->getConfig()->get("enableMarkdownParsing", false);
 
         $this->getServer()->getPluginManager()->registerEvents($this, $this);
     }
@@ -56,14 +74,15 @@ class Broadcaster extends PluginBase implements Listener {
     }
 
     /**
-     * @param string $str
+     * @param string $message
+     * @param string $channel
      */
-    public static function broadcast($str){
-        Server::getInstance()->getScheduler()->scheduleAsyncTask(new BroadcastTask($str));
+    public static function broadcast($message, $channel = ""){
+        Server::getInstance()->getScheduler()->scheduleAsyncTask(new BroadcastTask($message, $channel));
     }
 
     public function onPlayerChat(PlayerChatEvent $event){
-        if($this->getConfig()->get("broadcastPlayerChats", false)){
+        if(Broadcaster::$broadcastPlayerChats){
             Broadcaster::broadcast($this->getServer()->getLanguage()->translateString($event->getFormat(), [$event->getPlayer()->getName(), $event->getMessage()]));
         }
     }

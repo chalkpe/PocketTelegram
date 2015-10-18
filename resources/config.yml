@@ -1,3 +1,17 @@
-token: "Create your Telegram bot token from https://telegram.me/BotFather"
-channel: "@YourTelegramChannelName"
+# Your Telegram bot token
+# See "https://core.telegram.org/bots#botfather"
+token: ""
+
+# Your Telegram Channel's public name - e.g. @chalkpe_status
+# See "https://telegram.org/blog/channels"
+channel: ""
+
+# If it true, player chats will be broadcasted to your channel
 broadcastPlayerChats: false
+
+# If it true, link previews for links in your messages will be disabled
+disableWebPagePreview: true
+
+# If it true, Markdown syntax will be applied to your messages
+# See "https://core.telegram.org/bots/api#using-markdown"
+enableMarkdownParsing: false

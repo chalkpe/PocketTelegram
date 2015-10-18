@@ -31,7 +31,6 @@ class BroadcastTask extends AsyncTask {
     private $message, $channel;
 
     /**
-     * BroadcastTask constructor.
      * @param string $message
      * @param string $channel
      */
@@ -44,8 +43,12 @@ class BroadcastTask extends AsyncTask {
         $data = [
             "chat_id" => ($this->channel === "") ? Broadcaster::$channel : $this->channel,
             "text" => $this->message,
-            "disable_web_page_preview" => "true"
+            "disable_web_page_preview" => Broadcaster::$disableWebPagePreview
         ];
+
+        if(Broadcaster::$enableMarkdownParsing){
+            $data["parse_mode"] = "Markdown";
+        }
 
         $session = curl_init();
         curl_setopt($session, CURLOPT_URL, "https://api.telegram.org/bot" . Broadcaster::$token . "/sendMessage");
