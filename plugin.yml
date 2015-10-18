@@ -1,0 +1,8 @@
+name: Broadcaster
+version: "1.0"
+
+author: ChalkPE
+website: http://chalk.pe
+
+main: chalk\broadcaster\Broadcaster
+api: [1.12.0, 1.13.0, 2.0.0]
