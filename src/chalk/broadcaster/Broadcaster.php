@@ -29,6 +29,7 @@ use pocketmine\event\player\PlayerChatEvent;
 use pocketmine\event\player\PlayerDeathEvent;
 use pocketmine\event\player\PlayerJoinEvent;
 use pocketmine\event\player\PlayerQuitEvent;
+use pocketmine\event\TranslationContainer;
 use pocketmine\plugin\PluginBase;
 use pocketmine\Server;
 
@@ -82,6 +83,10 @@ class Broadcaster extends PluginBase implements Listener {
      * @param string $channel
      */
     public static function broadcast($message, $channel = ""){
+        if($message instanceof TranslationContainer){
+            $message = Server::getInstance()->getLanguage()->translateString($message->getText(), $message->getParameters());
+        }
+
         Server::getInstance()->getScheduler()->scheduleAsyncTask(new BroadcastTask($message, $channel));
     }
 
