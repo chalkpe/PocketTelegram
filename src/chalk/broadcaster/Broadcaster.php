@@ -92,19 +92,19 @@ class Broadcaster extends PluginBase implements Listener {
     }
 
     public function onPlayerJoin(PlayerJoinEvent $event){
-        if(Broadcaster::$broadcastPlayerChats and !$event->isCancelled()){
+        if(Broadcaster::$broadcastPlayerChats){
             Broadcaster::broadcast($event->getJoinMessage());
         }
     }
 
     public function onPlayerQuit(PlayerQuitEvent $event){
-        if(Broadcaster::$broadcastPlayerChats and !$event->isCancelled()){
+        if(Broadcaster::$broadcastPlayerChats){
             Broadcaster::broadcast($event->getQuitMessage());
         }
     }
 
     public function onPlayerDeath(PlayerDeathEvent $event){
-        if(Broadcaster::$broadcastPlayerChats and !$event->isCancelled()){
+        if(Broadcaster::$broadcastPlayerChats){
             Broadcaster::broadcast($event->getDeathMessage());
         }
     }
