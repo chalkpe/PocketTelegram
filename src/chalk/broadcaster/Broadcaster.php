@@ -32,6 +32,7 @@ use pocketmine\event\player\PlayerQuitEvent;
 use pocketmine\event\TranslationContainer;
 use pocketmine\plugin\PluginBase;
 use pocketmine\Server;
+use pocketmine\utils\TextFormat;
 
 class Broadcaster extends PluginBase implements Listener {
     /** @var Broadcaster */
@@ -87,7 +88,7 @@ class Broadcaster extends PluginBase implements Listener {
             $message = Server::getInstance()->getLanguage()->translateString($message->getText(), $message->getParameters());
         }
 
-        Server::getInstance()->getScheduler()->scheduleAsyncTask(new BroadcastTask($message, $channel));
+        Server::getInstance()->getScheduler()->scheduleAsyncTask(new BroadcastTask(TextFormat::clean($message), $channel));
     }
 
     public function onPlayerChat(PlayerChatEvent $event){
