@@ -51,7 +51,7 @@ class BroadcastTask extends AsyncTask {
     }
 
     public function onRun(){
-        $data = [
+        $query = [
             "chat_id" => ($this->channel === "") ? $this->data["channel"] : $this->channel,
             "text" => $this->message,
             "disable_web_page_preview" => $this->data["disableWebPagePreview"]
@@ -66,7 +66,7 @@ class BroadcastTask extends AsyncTask {
         curl_setopt($session, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($session, CURLOPT_FOLLOWLOCATION, true);
         curl_setopt($session, CURLOPT_POST, 1);
-        curl_setopt($session, CURLOPT_POSTFIELDS, $data);
+        curl_setopt($session, CURLOPT_POSTFIELDS, $query);
         curl_setopt($session, CURLOPT_SSL_VERIFYPEER, 0);
         curl_setopt($session, CURLOPT_CONNECTTIMEOUT, 500);
 

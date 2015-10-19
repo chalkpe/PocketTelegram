@@ -26,6 +26,9 @@ namespace chalk\broadcaster;
 
 use pocketmine\event\Listener;
 use pocketmine\event\player\PlayerChatEvent;
+use pocketmine\event\player\PlayerDeathEvent;
+use pocketmine\event\player\PlayerJoinEvent;
+use pocketmine\event\player\PlayerQuitEvent;
 use pocketmine\plugin\PluginBase;
 use pocketmine\Server;
 
@@ -83,8 +86,26 @@ class Broadcaster extends PluginBase implements Listener {
     }
 
     public function onPlayerChat(PlayerChatEvent $event){
-        if(Broadcaster::$broadcastPlayerChats){
+        if(Broadcaster::$broadcastPlayerChats and !$event->isCancelled()){
             Broadcaster::broadcast($this->getServer()->getLanguage()->translateString($event->getFormat(), [$event->getPlayer()->getName(), $event->getMessage()]));
+        }
+    }
+
+    public function onPlayerJoin(PlayerJoinEvent $event){
+        if(Broadcaster::$broadcastPlayerChats and !$event->isCancelled()){
+            Broadcaster::broadcast($event->getJoinMessage());
+        }
+    }
+
+    public function onPlayerQuit(PlayerQuitEvent $event){
+        if(Broadcaster::$broadcastPlayerChats and !$event->isCancelled()){
+            Broadcaster::broadcast($event->getQuitMessage());
+        }
+    }
+
+    public function onPlayerDeath(PlayerDeathEvent $event){
+        if(Broadcaster::$broadcastPlayerChats and !$event->isCancelled()){
+            Broadcaster::broadcast($event->getDeathMessage());
         }
     }
 }
