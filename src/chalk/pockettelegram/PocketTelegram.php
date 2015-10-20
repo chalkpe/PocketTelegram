@@ -143,7 +143,7 @@ class PocketTelegram extends PluginBase implements Listener {
     public static function getMe(){
         if(PocketTelegram::$me === null){
             PocketTelegram::request("getMe", [], function($result){
-                PocketTelegram::$me = User::create(json_decode($result));
+                PocketTelegram::$me = User::create(json_decode($result, true));
             });
         }
 

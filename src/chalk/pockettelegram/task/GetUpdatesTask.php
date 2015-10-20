@@ -42,10 +42,10 @@ class GetUpdatesTask extends PluginTask {
         PocketTelegram::request("getUpdates", is_null($this->lastUpdate) ? [] : [
             'offset' => $this->lastUpdate->getUpdateId() + 1
         ], function($raw){
-            $response = json_decode($raw);
-            if(!isset($response->ok) or $response->ok !== true) return;
+            $response = json_decode($raw, true);
+            if(!isset($response['ok']) or $response['ok'] !== true) return;
 
-            foreach($response->result as $result){
+            foreach($response['result'] as $result){
                 $update = Update::create($result);
                 $this->lastUpdate = $update;
 
