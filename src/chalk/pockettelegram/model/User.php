@@ -75,6 +75,6 @@ class User {
      * @return string
      */
     public function getFullName(){
-        return implode(" ", [$this->getFirstName(), $this->getLastName()]);
+        return ($this->getLastName() === "") ? $this->getFirstName() : $this->getFirstName() . " " . $this->getLastName();
     }
 }
