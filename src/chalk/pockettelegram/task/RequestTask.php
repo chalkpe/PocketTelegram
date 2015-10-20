@@ -48,7 +48,7 @@ class RequestTask extends AsyncTask {
         $this->params = $params;
         $this->callback = $callback;
 
-        PocketTelegram::debug($this->url . " - " . $this->params);
+        PocketTelegram::debug($this->url . " - " . json_encode($this->params));
     }
 
     public function onRun(){
