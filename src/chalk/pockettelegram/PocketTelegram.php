@@ -34,8 +34,8 @@ use pocketmine\plugin\PluginBase;
 use pocketmine\Server;
 use pocketmine\utils\TextFormat;
 
-class Broadcaster extends PluginBase implements Listener {
-    /** @var Broadcaster */
+class PocketTelegram extends PluginBase implements Listener {
+    /** @var PocketTelegram */
     private static $instance = null;
 
     /** @var string */
@@ -73,7 +73,7 @@ class Broadcaster extends PluginBase implements Listener {
     }
 
     /**
-     * @return Broadcaster
+     * @return PocketTelegram
      */
     public static function getInstance(){
         return self::$instance;
@@ -92,26 +92,26 @@ class Broadcaster extends PluginBase implements Listener {
     }
 
     public function onPlayerChat(PlayerChatEvent $event){
-        if(Broadcaster::$broadcastPlayerChats and !$event->isCancelled()){
-            Broadcaster::broadcast($this->getServer()->getLanguage()->translateString($event->getFormat(), [$event->getPlayer()->getName(), $event->getMessage()]));
+        if(PocketTelegram::$broadcastPlayerChats and !$event->isCancelled()){
+            PocketTelegram::broadcast($this->getServer()->getLanguage()->translateString($event->getFormat(), [$event->getPlayer()->getName(), $event->getMessage()]));
         }
     }
 
     public function onPlayerJoin(PlayerJoinEvent $event){
-        if(Broadcaster::$broadcastPlayerChats){
-            Broadcaster::broadcast($event->getJoinMessage());
+        if(PocketTelegram::$broadcastPlayerChats){
+            PocketTelegram::broadcast($event->getJoinMessage());
         }
     }
 
     public function onPlayerQuit(PlayerQuitEvent $event){
-        if(Broadcaster::$broadcastPlayerChats){
-            Broadcaster::broadcast($event->getQuitMessage());
+        if(PocketTelegram::$broadcastPlayerChats){
+            PocketTelegram::broadcast($event->getQuitMessage());
         }
     }
 
     public function onPlayerDeath(PlayerDeathEvent $event){
-        if(Broadcaster::$broadcastPlayerChats){
-            Broadcaster::broadcast($event->getDeathMessage());
+        if(PocketTelegram::$broadcastPlayerChats){
+            PocketTelegram::broadcast($event->getDeathMessage());
         }
     }
 }
