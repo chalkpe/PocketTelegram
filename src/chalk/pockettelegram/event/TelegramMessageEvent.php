@@ -8,13 +8,18 @@
 namespace chalk\pockettelegram\event;
 
 use chalk\pockettelegram\model\Message;
-use pocketmine\event\Event;
+use chalk\pockettelegram\PocketTelegram;
+use pocketmine\event\plugin\PluginEvent;
 
-class TelegramMessageEvent extends Event {
+class TelegramMessageEvent extends PluginEvent {
+    public static $handlerList;
+
     /** @var Message */
     private $message;
 
     public function __construct(Message $message){
+        parent::__construct(PocketTelegram::getInstance());
+
         $this->message = $message;
     }
 
