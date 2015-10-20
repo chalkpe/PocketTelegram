@@ -134,6 +134,8 @@ class PocketTelegram extends PluginBase implements Listener {
      * @param callable $callback
      */
     public static function request($method, $params, $callback = null){
+        self::debug("Requesting " . $method . "? " . json_encode($params));
+
         Server::getInstance()->getScheduler()->scheduleAsyncTask(new RequestTask(PocketTelegram::getBaseURL() . $method, $params, $callback));
     }
 

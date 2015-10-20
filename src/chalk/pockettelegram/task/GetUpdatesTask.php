@@ -32,22 +32,22 @@ use pocketmine\Server;
 
 class GetUpdatesTask extends PluginTask {
     /** @var Update|null */
-    private $lastUpdate = null;
+    private static $lastUpdate = null;
 
     public function __construct(){
         parent::__construct(PocketTelegram::getInstance());
     }
 
     public function onRun($currentTick){
-        PocketTelegram::request("getUpdates", is_null($this->lastUpdate) ? [] : [
-            'offset' => $this->lastUpdate->getUpdateId() + 1
+        PocketTelegram::request("getUpdates", is_null(GetUpdatesTask::$lastUpdate) ? [] : [
+            'offset' => GetUpdatesTask::$lastUpdate->getUpdateId() + 1
         ], function($raw){
             $response = json_decode($raw, true);
             if(!isset($response['ok']) or $response['ok'] !== true) return;
 
             foreach($response['result'] as $result){
                 $update = Update::create($result);
-                $this->lastUpdate = $update;
+                GetUpdatesTask::$lastUpdate = $update;
 
                 if(is_null($update->getMessage())) continue;
                 Server::getInstance()->getPluginManager()->callEvent(new TelegramMessageEvent($update->getMessage()));
