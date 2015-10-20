@@ -6,6 +6,9 @@ token: ""
 # See "https://telegram.org/blog/channels"
 defaultChannel: ""
 
+# The interval of your bot's message checking (20 = 1s)
+updateInterval: 20
+
 # If it true, player chats will be broadcasted to your channel
 broadcastPlayerChats: false
 

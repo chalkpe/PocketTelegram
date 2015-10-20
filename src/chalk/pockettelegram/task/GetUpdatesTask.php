@@ -35,6 +35,8 @@ class GetUpdatesTask extends PluginTask {
                 if(is_null($update->getMessage())) continue;
                 Server::getInstance()->getPluginManager()->callEvent(new TelegramMessageEvent($update->getMessage()));
             }
+
+            PocketTelegram::getUpdates();
         });
     }
 }

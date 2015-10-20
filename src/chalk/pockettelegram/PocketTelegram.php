@@ -69,6 +69,9 @@ class PocketTelegram extends PluginBase implements Listener {
     /** @var bool */
     private static $broadcastPlayerChats = false, $disableWebPagePreview = true, $enableMarkdownParsing = false, $debugMode = false;
 
+    /** @var int */
+    private static $updateInterval = 20;
+
     public function onEnable(){
         $this->saveDefaultConfig();
         PocketTelegram::$token = $this->getConfig()->get("token", "");
@@ -85,9 +88,10 @@ class PocketTelegram extends PluginBase implements Listener {
         PocketTelegram::$disableWebPagePreview = $this->getConfig()->get("disableWebPagePreview", true);
         PocketTelegram::$enableMarkdownParsing = $this->getConfig()->get("enableMarkdownParsing", false);
         PocketTelegram::$debugMode = $this->getConfig()->get("debugMode", false);
+        PocketTelegram::$updateInterval = $this->getConfig()->get("updateInterval", 20);
 
         $this->getServer()->getPluginManager()->registerEvents($this, $this);
-        $this->getServer()->getScheduler()->scheduleRepeatingTask(new GetUpdatesTask(), 20);
+        PocketTelegram::getUpdates();
     }
 
     /**
@@ -143,6 +147,10 @@ class PocketTelegram extends PluginBase implements Listener {
         }
 
         return PocketTelegram::$me;
+    }
+
+    public static function getUpdates(){
+        Server::getInstance()->getScheduler()->scheduleDelayedTask(new GetUpdatesTask(), PocketTelegram::$updateInterval);
     }
 
     /**
