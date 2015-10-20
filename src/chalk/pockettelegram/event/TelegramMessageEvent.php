@@ -12,7 +12,7 @@ use chalk\pockettelegram\PocketTelegram;
 use pocketmine\event\plugin\PluginEvent;
 
 class TelegramMessageEvent extends PluginEvent {
-    public static $handlerList;
+    public static $handlerList = [];
 
     /** @var Message */
     private $message;
