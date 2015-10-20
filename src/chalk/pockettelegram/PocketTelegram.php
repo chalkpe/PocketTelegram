@@ -100,7 +100,7 @@ class PocketTelegram extends PluginBase implements Listener {
      */
     public static function debug($message){
         if(PocketTelegram::$debugMode){
-            PocketTelegram::getInstance()->getLogger()->debug($message);
+            PocketTelegram::getInstance()->getLogger()->info($message);
         }
     }
 
