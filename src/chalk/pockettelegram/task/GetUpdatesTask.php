@@ -32,7 +32,7 @@ use pocketmine\Server;
 
 class GetUpdatesTask extends PluginTask {
     /** @var Update|null */
-    private static $lastUpdate = null;
+    public static $lastUpdate = null;
 
     public function __construct(){
         parent::__construct(PocketTelegram::getInstance());
