@@ -70,15 +70,13 @@ class Message {
      * @return Message
      */
     public static function create(array $array){
-        $message = new Message(intval($array['message_id']), intval($array['date']), Chat::create($array['chat']),
+        if(isset($array['text'])) return TextMessage::create($array);
+
+        return new Message(intval($array['message_id']), intval($array['date']), Chat::create($array['chat']),
             isset($array['from'])             ? User::create($array['from'])                : null,
             isset($array['forward_from'])     ? User::create($array['forward_from'])        : null,
             isset($array['forward_date'])     ? intval($array['forward_date'])              : 0,
             isset($array['reply_to_message']) ? Message::create($array['reply_to_message']) : null);
-
-        if(isset($array['text'])) return TextMessage::create($array, $message);
-
-        return $message;
     }
 
     /**

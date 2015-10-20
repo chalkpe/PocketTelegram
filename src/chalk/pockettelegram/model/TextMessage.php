@@ -29,22 +29,31 @@ class TextMessage extends Message {
     private $text = "";
 
     /**
-     * @param Message $message
+     * @param int $messageId
+     * @param int $date
+     * @param Chat $chat
      * @param string $text
+     * @param User|null $from
+     * @param User|null $forwardFrom
+     * @param int $forwardDate
+     * @param Message|null $replyToMessage
      */
-    public function __construct(Message $message, $text){
-        parent::__construct($message->getMessageId(), $message->getDate(), $message->getChat(), $message->getFrom(), $message->getForwardFrom(), $message->getForwardDate(), $message->getReplyToMessage());
+    public function __construct($messageId, $date, Chat $chat, $text, User $from = null, User $forwardFrom = null, $forwardDate = 0, Message $replyToMessage = null){
+        parent::__construct($messageId, $date, $chat, $from, $forwardFrom, $forwardDate, $replyToMessage);
 
         $this->text = $text;
     }
 
     /**
      * @param array $array
-     * @param Message $message
      * @return TextMessage
      */
-    public static function create(array $array, Message $message){
-        return new TextMessage($message, $array['text']);
+    public static function create(array $array){
+        return new TextMessage(intval($array['message_id']), intval($array['date']), Chat::create($array['chat']), $array['text'],
+            isset($array['from'])             ? User::create($array['from'])                : null,
+            isset($array['forward_from'])     ? User::create($array['forward_from'])        : null,
+            isset($array['forward_date'])     ? intval($array['forward_date'])              : 0,
+            isset($array['reply_to_message']) ? Message::create($array['reply_to_message']) : null);
     }
 
     /**
