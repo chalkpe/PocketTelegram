@@ -17,6 +17,8 @@ class TelegramMessageEvent extends PluginEvent {
 
     public function __construct(Message $message){
         parent::__construct(PocketTelegram::getInstance());
+
+        $this->message = $message;
     }
 
     /**
