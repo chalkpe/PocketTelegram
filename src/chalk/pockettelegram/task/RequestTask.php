@@ -22,7 +22,7 @@
  * @since 2015-10-18 20:50
  */
 
-namespace chalk\broadcaster;
+namespace chalk\pockettelegram;
 
 use pocketmine\scheduler\AsyncTask;
 use pocketmine\Server;

@@ -7,7 +7,7 @@
 
 namespace chalk\pockettelegram\event;
 
-use chalk\broadcaster\PocketTelegram;
+use chalk\pockettelegram\PocketTelegram;
 use chalk\pockettelegram\model\Message;
 use pocketmine\event\plugin\PluginEvent;
 

@@ -7,7 +7,7 @@
 
 namespace chalk\pockettelegram\task;
 
-use chalk\broadcaster\PocketTelegram;
+use chalk\pockettelegram\PocketTelegram;
 use chalk\pockettelegram\event\TelegramMessageEvent;
 use chalk\pockettelegram\model\Update;
 use pocketmine\scheduler\PluginTask;

@@ -22,7 +22,7 @@
  * @since 2015-10-18 19:02
  */
 
-namespace chalk\broadcaster;
+namespace chalk\pockettelegram;
 
 use chalk\pockettelegram\event\TelegramMessageEvent;
 use chalk\pockettelegram\model\TextMessage;
