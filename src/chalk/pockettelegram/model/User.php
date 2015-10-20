@@ -12,13 +12,19 @@ class User {
     private $id;
 
     /** @var string */
-    private $firstName, $lastName, $username;
+    private $firstName;
+
+    /** @var string|null */
+    private $lastName = "";
+
+    /** @var string|null */
+    private $username = "";
 
     /**
      * @param int $id
      * @param string $firstName
-     * @param string $lastName
-     * @param string $username
+     * @param string|null $lastName
+     * @param string|null $username
      */
     public function __construct($id, $firstName, $lastName = "", $username = ""){
         $this->id = $id;
@@ -32,7 +38,9 @@ class User {
      * @return User
      */
     public static function create(array $array){
-        return new User(intval($array['id']), $array['first_name'], isset($array['last_name']) ? $array['last_name'] : "", isset($array['username']) ? $array['username'] : "");
+        return new User(intval($array['id']), $array['first_name'],
+            isset($array['last_name']) ? $array['last_name'] : "",
+            isset($array['username'])  ? $array['username']  : "");
     }
 
     /**
@@ -50,14 +58,14 @@ class User {
     }
 
     /**
-     * @return string
+     * @return string|null
      */
     public function getLastName(){
         return $this->lastName;
     }
 
     /**
-     * @return string
+     * @return string|null
      */
     public function getUsername(){
         return $this->username;
