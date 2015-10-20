@@ -109,6 +109,8 @@ class PocketTelegram extends PluginBase implements Listener {
      * @param string $channel
      */
     public static function sendMessage($message, $channel){
+        if(is_null($message)) return;
+
         if($message instanceof TranslationContainer){
             $message = Server::getInstance()->getLanguage()->translateString($message->getText(), $message->getParameters());
         }
@@ -126,26 +128,7 @@ class PocketTelegram extends PluginBase implements Listener {
 
 
 
-
-
-
-    public function onPlayerChat(PlayerChatEvent $event){
-        PocketTelegram::handlePlayerEvents($event);
-    }
-
-    public function onPlayerJoin(PlayerJoinEvent $event){
-        PocketTelegram::handlePlayerEvents($event);
-    }
-
-    public function onPlayerQuit(PlayerQuitEvent $event){
-        PocketTelegram::handlePlayerEvents($event);
-    }
-
-    public function onPlayerDeath(PlayerDeathEvent $event){
-        PocketTelegram::handlePlayerEvents($event);
-    }
-
-    public static function handlePlayerEvents(Event $event){
+    public static function handleEvents(Event $event){
         if(!PocketTelegram::$broadcastPlayerChats) return;
         if($event instanceof Cancellable and $event->isCancelled()) return;
 
