@@ -24,7 +24,10 @@
 
 namespace chalk\broadcaster;
 
+use chalk\pockettelegram\event\TelegramMessageEvent;
+use chalk\pockettelegram\model\TextMessage;
 use chalk\pockettelegram\model\User;
+use chalk\pockettelegram\task\GetUpdatesTask;
 use pocketmine\event\Cancellable;
 use pocketmine\event\Event;
 use pocketmine\event\Listener;
@@ -84,6 +87,7 @@ class PocketTelegram extends PluginBase implements Listener {
         PocketTelegram::$debugMode = $this->getConfig()->get("debugMode", false);
 
         $this->getServer()->getPluginManager()->registerEvents($this, $this);
+        $this->getServer()->getScheduler()->scheduleRepeatingTask(new GetUpdatesTask(), 20);
     }
 
     /**
@@ -124,7 +128,7 @@ class PocketTelegram extends PluginBase implements Listener {
      * @param array $params
      * @param callable $callback
      */
-    private static function request($method, $params, $callback = null){
+    public static function request($method, $params, $callback = null){
         Server::getInstance()->getScheduler()->scheduleAsyncTask(new RequestTask(PocketTelegram::getBaseURL() . $method, $params, $callback));
     }
 
@@ -188,6 +192,13 @@ class PocketTelegram extends PluginBase implements Listener {
             case $event instanceof PlayerDeathEvent:
                 $message = $event->getDeathMessage();
                 break;
+
+            case $event instanceof TelegramMessageEvent:
+                $message = $event->getMessage();
+                if($message instanceof TextMessage){
+                    PocketTelegram::debug($message->getText());
+                }
+                return;
 
             default:
                 return;
