@@ -24,6 +24,8 @@
 
 namespace chalk\broadcaster;
 
+use pocketmine\event\Cancellable;
+use pocketmine\event\Event;
 use pocketmine\event\Listener;
 use pocketmine\event\player\PlayerChatEvent;
 use pocketmine\event\player\PlayerDeathEvent;
@@ -38,12 +40,6 @@ class PocketTelegram extends PluginBase implements Listener {
     /** @var PocketTelegram */
     private static $instance = null;
 
-    /** @var string */
-    public static $token = "", $channel = "";
-
-    /** @var bool */
-    public static $broadcastPlayerChats = false, $disableWebPagePreview = true, $enableMarkdownParsing = false, $debugMode = false;
-
     public function onLoad(){
         self::$instance = $this;
     }
@@ -51,6 +47,21 @@ class PocketTelegram extends PluginBase implements Listener {
     public function onDisable(){
         self::$instance = null;
     }
+
+    /**
+     * @return PocketTelegram
+     */
+    public static function getInstance(){
+        return self::$instance;
+    }
+
+
+
+    /** @var string */
+    private static $token = "", $channel = "";
+
+    /** @var bool */
+    private static $broadcastPlayerChats = false, $disableWebPagePreview = true, $enableMarkdownParsing = false, $debugMode = false;
 
     public function onEnable(){
         $this->saveDefaultConfig();
@@ -73,45 +84,93 @@ class PocketTelegram extends PluginBase implements Listener {
     }
 
     /**
-     * @return PocketTelegram
+     * @param string $message
      */
-    public static function getInstance(){
-        return self::$instance;
+    public static function debug($message){
+        if(PocketTelegram::$debugMode){
+            PocketTelegram::getInstance()->getLogger()->debug($message);
+        }
+    }
+
+
+
+
+
+    public static function getBotToken(){
+        return self::$token;
+    }
+
+    public static function getBaseURL(){
+        return "https://api.telegram.org/bot" . self::$token . "/";
     }
 
     /**
      * @param string $message
      * @param string $channel
      */
-    public static function broadcast($message, $channel = ""){
+    public static function sendMessage($message, $channel){
         if($message instanceof TranslationContainer){
             $message = Server::getInstance()->getLanguage()->translateString($message->getText(), $message->getParameters());
         }
 
-        Server::getInstance()->getScheduler()->scheduleAsyncTask(new BroadcastTask(TextFormat::clean($message), $channel));
+        $query = [
+            'chat_id' => $channel,
+            'text' => TextFormat::clean($message)
+        ];
+
+        if(PocketTelegram::$enableMarkdownParsing) $query['parse_mode'] = "Markdown";
+        if(PocketTelegram::$disableWebPagePreview) $query['disable_web_page_preview'] = "true";
+
+        Server::getInstance()->getScheduler()->scheduleAsyncTask(new RequestTask(self::getBaseURL() . "sendMessage", $query));
     }
 
+
+
+
+
+
     public function onPlayerChat(PlayerChatEvent $event){
-        if(PocketTelegram::$broadcastPlayerChats and !$event->isCancelled()){
-            PocketTelegram::broadcast($this->getServer()->getLanguage()->translateString($event->getFormat(), [$event->getPlayer()->getName(), $event->getMessage()]));
-        }
+        PocketTelegram::handlePlayerEvents($event);
     }
 
     public function onPlayerJoin(PlayerJoinEvent $event){
-        if(PocketTelegram::$broadcastPlayerChats){
-            PocketTelegram::broadcast($event->getJoinMessage());
-        }
+        PocketTelegram::handlePlayerEvents($event);
     }
 
     public function onPlayerQuit(PlayerQuitEvent $event){
-        if(PocketTelegram::$broadcastPlayerChats){
-            PocketTelegram::broadcast($event->getQuitMessage());
-        }
+        PocketTelegram::handlePlayerEvents($event);
     }
 
     public function onPlayerDeath(PlayerDeathEvent $event){
-        if(PocketTelegram::$broadcastPlayerChats){
-            PocketTelegram::broadcast($event->getDeathMessage());
+        PocketTelegram::handlePlayerEvents($event);
+    }
+
+    public static function handlePlayerEvents(Event $event){
+        if(!PocketTelegram::$broadcastPlayerChats) return;
+        if($event instanceof Cancellable and $event->isCancelled()) return;
+
+        $message = null;
+        switch(true){
+            case $event instanceof PlayerChatEvent:
+                $message = Server::getInstance()->getLanguage()->translateString($event->getFormat(), [$event->getPlayer()->getName(), $event->getMessage()]);
+                break;
+
+            case $event instanceof PlayerJoinEvent:
+                $message = $event->getJoinMessage();
+                break;
+
+            case $event instanceof PlayerQuitEvent:
+                $message = $event->getQuitMessage();
+                break;
+
+            case $event instanceof PlayerDeathEvent:
+                $message = $event->getDeathMessage();
+                break;
+
+            default:
+                return;
         }
+
+        PocketTelegram::sendMessage($message, PocketTelegram::$channel);
     }
 }

@@ -27,46 +27,34 @@ namespace chalk\broadcaster;
 use pocketmine\scheduler\AsyncTask;
 use pocketmine\Server;
 
-class BroadcastTask extends AsyncTask {
+class RequestTask extends AsyncTask {
     /** @var string */
-    private $message, $channel;
+    private $url;
 
-    /** @var array */
-    private $data;
+    /** @var string[] */
+    private $query;
+
+    /** @var callable */
+    private $callback;
 
     /**
-     * @param string $message
-     * @param string $channel
+     * @param string $url
+     * @param string[] $query
+     * @param callable $callback
      */
-    public function __construct($message, $channel = ""){
-        $this->message = $message;
-        $this->channel = $channel;
-
-        $this->data = [
-            "token" => Broadcaster::$token,
-            "channel" => Broadcaster::$channel,
-            "disableWebPagePreview" => Broadcaster::$disableWebPagePreview,
-            "enableMarkdownParsing" => Broadcaster::$enableMarkdownParsing
-        ];
+    public function __construct($url, $query, callable $callback = null){
+        $this->url = $url;
+        $this->query = $query;
+        $this->callback = $callback;
     }
 
     public function onRun(){
-        $query = [
-            "chat_id" => ($this->channel === "") ? $this->data["channel"] : $this->channel,
-            "text" => $this->message,
-            "disable_web_page_preview" => $this->data["disableWebPagePreview"]
-        ];
-
-        if($this->data["enableMarkdownParsing"]){
-            $data["parse_mode"] = "Markdown";
-        }
-
         $session = curl_init();
-        curl_setopt($session, CURLOPT_URL, "https://api.telegram.org/bot" . $this->data["token"] . "/sendMessage");
+        curl_setopt($session, CURLOPT_URL, $this->url);
         curl_setopt($session, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($session, CURLOPT_FOLLOWLOCATION, true);
         curl_setopt($session, CURLOPT_POST, 1);
-        curl_setopt($session, CURLOPT_POSTFIELDS, $query);
+        curl_setopt($session, CURLOPT_POSTFIELDS, $this->query);
         curl_setopt($session, CURLOPT_SSL_VERIFYPEER, 0);
         curl_setopt($session, CURLOPT_CONNECTTIMEOUT, 500);
 
@@ -75,8 +63,9 @@ class BroadcastTask extends AsyncTask {
     }
 
     public function onCompletion(Server $server){
-        if(Broadcaster::$debugMode and $this->hasResult()){
-            Broadcaster::getInstance()->getLogger()->debug($this->getResult());
+        if($this->hasResult()){
+            PocketTelegram::debug($this->getResult());
+            if(!is_null($this->callback)) call_user_func($this->callback, $this->getResult());
         }
     }
 }
