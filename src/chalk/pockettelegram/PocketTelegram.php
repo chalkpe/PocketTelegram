@@ -28,6 +28,7 @@ use chalk\pockettelegram\event\TelegramMessageEvent;
 use chalk\pockettelegram\model\TextMessage;
 use chalk\pockettelegram\model\User;
 use chalk\pockettelegram\task\GetUpdatesTask;
+use chalk\pockettelegram\task\RequestTask;
 use pocketmine\event\Cancellable;
 use pocketmine\event\Event;
 use pocketmine\event\Listener;
