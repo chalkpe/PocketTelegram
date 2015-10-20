@@ -24,6 +24,7 @@
 
 namespace chalk\broadcaster;
 
+use chalk\pockettelegram\model\User;
 use pocketmine\event\Cancellable;
 use pocketmine\event\Event;
 use pocketmine\event\Listener;
@@ -41,44 +42,46 @@ class PocketTelegram extends PluginBase implements Listener {
     private static $instance = null;
 
     public function onLoad(){
-        self::$instance = $this;
+        PocketTelegram::$instance = $this;
     }
 
     public function onDisable(){
-        self::$instance = null;
+        PocketTelegram::$instance = null;
     }
 
     /**
      * @return PocketTelegram
      */
     public static function getInstance(){
-        return self::$instance;
+        return PocketTelegram::$instance;
     }
 
 
 
+
+
     /** @var string */
-    private static $token = "", $channel = "";
+    private static $defaultChannel = "";
 
     /** @var bool */
     private static $broadcastPlayerChats = false, $disableWebPagePreview = true, $enableMarkdownParsing = false, $debugMode = false;
 
     public function onEnable(){
         $this->saveDefaultConfig();
-        self::$token = $this->getConfig()->get("token", "");
-        self::$channel = $this->getConfig()->get("channel", "");
+        PocketTelegram::$token = $this->getConfig()->get("token", "");
+        PocketTelegram::$defaultChannel = $this->getConfig()->get("defaultChannel", "");
 
-        if(self::$token === "" || self::$channel === ""){
+        if(PocketTelegram::$token === "" or PocketTelegram::$defaultChannel === ""){
             $this->getLogger()->alert("You need to set your configs to enable this plugin");
             $this->getLogger()->alert("-> " . $this->getDataFolder() . "config.yml");
             $this->getServer()->getPluginManager()->disablePlugin($this);
             return;
         }
 
-        self::$broadcastPlayerChats = $this->getConfig()->get("broadcastPlayerChats", false);
-        self::$disableWebPagePreview = $this->getConfig()->get("disableWebPagePreview", true);
-        self::$enableMarkdownParsing = $this->getConfig()->get("enableMarkdownParsing", false);
-        self::$debugMode = $this->getConfig()->get("debugMode", false);
+        PocketTelegram::$broadcastPlayerChats = $this->getConfig()->get("broadcastPlayerChats", false);
+        PocketTelegram::$disableWebPagePreview = $this->getConfig()->get("disableWebPagePreview", true);
+        PocketTelegram::$enableMarkdownParsing = $this->getConfig()->get("enableMarkdownParsing", false);
+        PocketTelegram::$debugMode = $this->getConfig()->get("debugMode", false);
 
         $this->getServer()->getPluginManager()->registerEvents($this, $this);
     }
@@ -96,12 +99,46 @@ class PocketTelegram extends PluginBase implements Listener {
 
 
 
+    /** @var string */
+    private static $token = "";
+
+    /** @var User */
+    private static $me = null;
+
+    /**
+     * @return string
+     */
     public static function getBotToken(){
-        return self::$token;
+        return PocketTelegram::$token;
     }
 
+    /**
+     * @return string
+     */
     public static function getBaseURL(){
-        return "https://api.telegram.org/bot" . self::$token . "/";
+        return "https://api.telegram.org/bot" . PocketTelegram::$token . "/";
+    }
+
+    /**
+     * @param string $method
+     * @param array $params
+     * @param callable $callback
+     */
+    private static function request($method, $params, $callback = null){
+        Server::getInstance()->getScheduler()->scheduleAsyncTask(new RequestTask(PocketTelegram::getBaseURL() . $method, $params, $callback));
+    }
+
+    /**
+     * @return User
+     */
+    public static function getMe(){
+        if(PocketTelegram::$me === null){
+            PocketTelegram::request("getMe", [], function($result){
+                PocketTelegram::$me = User::create(json_decode($result));
+            });
+        }
+
+        return PocketTelegram::$me;
     }
 
     /**
@@ -115,7 +152,7 @@ class PocketTelegram extends PluginBase implements Listener {
             $message = Server::getInstance()->getLanguage()->translateString($message->getText(), $message->getParameters());
         }
 
-        $query = [
+        $params = [
             'chat_id' => $channel,
             'text' => TextFormat::clean($message)
         ];
@@ -123,8 +160,10 @@ class PocketTelegram extends PluginBase implements Listener {
         if(PocketTelegram::$enableMarkdownParsing) $query['parse_mode'] = "Markdown";
         if(PocketTelegram::$disableWebPagePreview) $query['disable_web_page_preview'] = "true";
 
-        Server::getInstance()->getScheduler()->scheduleAsyncTask(new RequestTask(self::getBaseURL() . "sendMessage", $query));
+        PocketTelegram::request("sendMessage", $params);
     }
+
+
 
 
 
@@ -154,6 +193,6 @@ class PocketTelegram extends PluginBase implements Listener {
                 return;
         }
 
-        PocketTelegram::sendMessage($message, PocketTelegram::$channel);
+        PocketTelegram::sendMessage($message, PocketTelegram::$defaultChannel);
     }
 }

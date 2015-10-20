@@ -4,7 +4,7 @@ token: ""
 
 # Your Telegram Channel's public name - e.g. @chalkpe_status
 # See "https://telegram.org/blog/channels"
-channel: ""
+defaultChannel: ""
 
 # If it true, player chats will be broadcasted to your channel
 broadcastPlayerChats: false

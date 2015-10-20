@@ -31,20 +31,20 @@ class RequestTask extends AsyncTask {
     /** @var string */
     private $url;
 
-    /** @var string[] */
-    private $query;
+    /** @var array */
+    private $params;
 
     /** @var callable */
     private $callback;
 
     /**
      * @param string $url
-     * @param string[] $query
+     * @param array $params
      * @param callable $callback
      */
-    public function __construct($url, $query, callable $callback = null){
+    public function __construct($url, array $params, callable $callback = null){
         $this->url = $url;
-        $this->query = $query;
+        $this->params = $params;
         $this->callback = $callback;
     }
 
@@ -54,7 +54,7 @@ class RequestTask extends AsyncTask {
         curl_setopt($session, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($session, CURLOPT_FOLLOWLOCATION, true);
         curl_setopt($session, CURLOPT_POST, 1);
-        curl_setopt($session, CURLOPT_POSTFIELDS, $this->query);
+        curl_setopt($session, CURLOPT_POSTFIELDS, $this->params);
         curl_setopt($session, CURLOPT_SSL_VERIFYPEER, 0);
         curl_setopt($session, CURLOPT_CONNECTTIMEOUT, 500);
 
