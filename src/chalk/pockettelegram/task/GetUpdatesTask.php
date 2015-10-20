@@ -43,9 +43,9 @@ class GetUpdatesTask extends PluginTask {
             'offset' => $this->lastUpdate->getUpdateId() + 1
         ], function($raw){
             $response = json_decode($raw);
-            if(!isset($response['ok']) or $response['ok'] !== true) return;
+            if(!isset($response->ok) or $response->ok !== true) return;
 
-            foreach($response['result'] as $result){
+            foreach($response->result as $result){
                 $update = Update::create($result);
                 $this->lastUpdate = $update;
 
