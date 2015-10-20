@@ -182,6 +182,22 @@ class PocketTelegram extends PluginBase implements Listener {
 
 
 
+    public function onPlayerChat(PlayerChatEvent $event){
+        PocketTelegram::handleEvents($event);
+    }
+
+    public function onPlayerJoin(PlayerJoinEvent $event){
+        PocketTelegram::handleEvents($event);
+    }
+
+    public function onPlayerQuit(PlayerQuitEvent $event){
+        PocketTelegram::handleEvents($event);
+    }
+
+    public function onPlayerDeath(PlayerDeathEvent $event){
+        PocketTelegram::handleEvents($event);
+    }
+
     public static function handleEvents(Event $event){
         if(!PocketTelegram::$broadcastPlayerChats) return;
         if($event instanceof Cancellable and $event->isCancelled()) return;
