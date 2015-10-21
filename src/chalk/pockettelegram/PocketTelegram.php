@@ -129,6 +129,13 @@ class PocketTelegram extends PluginBase implements Listener {
     }
 
     /**
+     * @return string
+     */
+    public static function getDefaultChannel(){
+        return PocketTelegram::$defaultChannel;
+    }
+
+    /**
      * @param string $method
      * @param array $params
      * @param callable $callback
@@ -198,12 +205,27 @@ class PocketTelegram extends PluginBase implements Listener {
         PocketTelegram::handleEvents($event);
     }
 
+    public function onTelegramMessage(TelegramMessageEvent $event){
+        PocketTelegram::handleEvents($event);
+    }
+
+
     public static function handleEvents(Event $event){
         if(!PocketTelegram::$broadcastPlayerChats) return;
         if($event instanceof Cancellable and $event->isCancelled()) return;
 
         $message = null;
         switch(true){
+            case $event instanceof TelegramMessageEvent:
+                $message = $event->getMessage();
+                if($message->getChat()->getId() === PocketTelegram::$defaultChannel and !is_null($message->getFrom()) and $message instanceof TextMessage){
+                    $name = $message->getFrom()->getUsername();
+                    if($name === "") $name = $message->getFrom()->getFullName();
+
+                    Server::getInstance()->broadcastMessage("T: " . Server::getInstance()->getLanguage()->translateString("chat.type.text", [$name, $message->getText()]));
+                }
+                return;
+
             case $event instanceof PlayerChatEvent:
                 $message = Server::getInstance()->getLanguage()->translateString($event->getFormat(), [$event->getPlayer()->getName(), $event->getMessage()]);
                 break;
@@ -219,13 +241,6 @@ class PocketTelegram extends PluginBase implements Listener {
             case $event instanceof PlayerDeathEvent:
                 $message = $event->getDeathMessage();
                 break;
-
-            case $event instanceof TelegramMessageEvent:
-                $message = $event->getMessage();
-                if($message instanceof TextMessage){
-                    PocketTelegram::debug($message->getText());
-                }
-                return;
 
             default:
                 return;
