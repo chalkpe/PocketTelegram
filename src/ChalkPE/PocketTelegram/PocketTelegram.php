@@ -26,8 +26,8 @@ namespace ChalkPE\PocketTelegram;
 
 use ChalkPE\PocketTelegram\event\TelegramMessageEvent;
 use ChalkPE\PocketTelegram\model\Chat;
-use ChalkPE\PocketTelegram\model\Message;
-use ChalkPE\PocketTelegram\model\TextMessage;
+use ChalkPE\PocketTelegram\model\message\Message;
+use ChalkPE\PocketTelegram\model\message\TextMessage;
 use ChalkPE\PocketTelegram\model\User;
 use ChalkPE\PocketTelegram\task\GetUpdatesTask;
 use ChalkPE\PocketTelegram\task\RequestTask;

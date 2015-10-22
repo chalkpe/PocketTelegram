@@ -22,7 +22,12 @@
  * @since 2015-10-20 17:20
  */
 
-namespace ChalkPE\PocketTelegram\model;
+namespace ChalkPE\PocketTelegram\model\message;
+
+use ChalkPE\PocketTelegram\model\Chat;
+use ChalkPE\PocketTelegram\model\Identifiable;
+use ChalkPE\PocketTelegram\model\Model;
+use ChalkPE\PocketTelegram\model\User;
 
 class Message extends Model implements Identifiable {
     /** @var int */

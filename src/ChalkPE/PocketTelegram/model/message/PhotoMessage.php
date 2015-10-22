@@ -5,7 +5,9 @@
  * @since 2015-10-22 22:38
  */
 
-namespace ChalkPE\PocketTelegram\model;
+namespace ChalkPE\PocketTelegram\model\message;
+
+use ChalkPE\PocketTelegram\model\PhotoSize;
 
 class PhotoMessage extends Message {
     /** @var PhotoSize[] */

@@ -24,7 +24,7 @@
 
 namespace ChalkPE\PocketTelegram\event;
 
-use ChalkPE\PocketTelegram\model\Message;
+use ChalkPE\PocketTelegram\model\message\Message;
 use ChalkPE\PocketTelegram\PocketTelegram;
 use pocketmine\event\plugin\PluginEvent;
 
