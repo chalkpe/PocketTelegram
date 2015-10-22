@@ -91,6 +91,27 @@ class Chat implements Identifiable, Nameable {
     }
 
     /**
+     * @return bool
+     */
+    public function isPrivateChat(){
+        return $this->getType() === Chat::TYPE_PRIVATE or $this->getId() > 0;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isGroupChat(){
+        return $this->getType() === Chat::TYPE_GROUP or $this->getId() < 0;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isChannel(){
+        return $this->getType() === Chat::TYPE_CHANNEL or (is_string($this->getId()) and $this->getId()[0] === '@');
+    }
+
+    /**
      * @return string|null
      */
     public function getTitle(){
