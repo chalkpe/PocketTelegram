@@ -2,8 +2,9 @@
 # See "https://core.telegram.org/bots#botfather"
 token: ""
 
-# Your Telegram Channel's public name - e.g. @chalkpe_status
-# See "https://telegram.org/blog/channels"
+# The chat_id of your Telegram group or the public name of your Telegram channel, e.g. -23612486, "@chalkpe_status"
+# The bot must be joined to the group or be a administrator of the channel
+# You can get your chat_id of the group by using the "/id" command in there
 defaultChannel: ""
 
 # The interval of your bot's message checking (20 = 1s)

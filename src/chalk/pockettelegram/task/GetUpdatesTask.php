@@ -39,10 +39,8 @@ class GetUpdatesTask extends PluginTask {
     }
 
     public function onRun($currentTick){
-        PocketTelegram::request("getUpdates", is_null(GetUpdatesTask::$lastUpdate) ? [] : [
-            'offset' => GetUpdatesTask::$lastUpdate->getUpdateId() + 1
-        ], function($raw){
-            $response = json_decode($raw, true);
+        PocketTelegram::request("getUpdates", is_null(self::$lastUpdate) ? ['limit' => 2048] : ['offset' => self::$lastUpdate->getUpdateId() + 1], function($json){
+            $response = json_decode($json, true);
             if(!isset($response['ok']) or $response['ok'] !== true) return;
 
             foreach($response['result'] as $result){
