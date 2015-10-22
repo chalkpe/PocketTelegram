@@ -84,6 +84,9 @@ class PocketTelegram extends PluginBase implements Listener {
     /** @var bool */
     private static $debugMode = false;
 
+    /** @var int[] */
+    public static $lastCommand = [];
+
     public function onEnable(){
         $this->saveDefaultConfig();
         self::$token          = $this->getConfig()->get("token",          "");
@@ -262,8 +265,17 @@ class PocketTelegram extends PluginBase implements Listener {
      * @param TextMessage $message
      */
     private static function handleCommands(TextMessage $message){
+        $key = $message->getChat()->getId();
+        if(!isset(self::$lastCommand[$key])) self::$lastCommand[$key] = 0;
+
+        $diff = time() - self::$lastCommand[$key];
+        self::$lastCommand[$key] = time();
+        if($diff < 2){
+            return;
+        }
+
         $command = explode(' ', substr($message->getText(), 1));
-        if(strpos('@', $command[0]) !== false){
+        if(strpos($command[0], '@') !== false){
             $mainCommand = explode('@', $command[0]);
 
             if(!is_null($me = PocketTelegram::getMe()) and strToLower($mainCommand[1]) !== strToLower($me->getUsername())) return;
