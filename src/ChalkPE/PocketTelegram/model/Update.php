@@ -22,7 +22,7 @@
  * @since 2015-10-20 23:52
  */
 
-namespace chalk\pockettelegram\model;
+namespace ChalkPE\PocketTelegram\model;
 
 class Update implements Identifiable {
     /** @var int */

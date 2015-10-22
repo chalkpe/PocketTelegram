@@ -22,11 +22,11 @@
  * @since 2015-10-20 23:43
  */
 
-namespace chalk\pockettelegram\task;
+namespace ChalkPE\PocketTelegram\task;
 
-use chalk\pockettelegram\PocketTelegram;
-use chalk\pockettelegram\event\TelegramMessageEvent;
-use chalk\pockettelegram\model\Update;
+use ChalkPE\PocketTelegram\PocketTelegram;
+use ChalkPE\PocketTelegram\event\TelegramMessageEvent;
+use ChalkPE\PocketTelegram\model\Update;
 use pocketmine\scheduler\PluginTask;
 use pocketmine\Server;
 

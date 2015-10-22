@@ -22,15 +22,15 @@
  * @since 2015-10-18 19:02
  */
 
-namespace chalk\pockettelegram;
+namespace ChalkPE\PocketTelegram;
 
-use chalk\pockettelegram\event\TelegramMessageEvent;
-use chalk\pockettelegram\model\Chat;
-use chalk\pockettelegram\model\Message;
-use chalk\pockettelegram\model\TextMessage;
-use chalk\pockettelegram\model\User;
-use chalk\pockettelegram\task\GetUpdatesTask;
-use chalk\pockettelegram\task\RequestTask;
+use ChalkPE\PocketTelegram\event\TelegramMessageEvent;
+use ChalkPE\PocketTelegram\model\Chat;
+use ChalkPE\PocketTelegram\model\Message;
+use ChalkPE\PocketTelegram\model\TextMessage;
+use ChalkPE\PocketTelegram\model\User;
+use ChalkPE\PocketTelegram\task\GetUpdatesTask;
+use ChalkPE\PocketTelegram\task\RequestTask;
 use pocketmine\event\Cancellable;
 use pocketmine\event\Event;
 use pocketmine\event\Listener;

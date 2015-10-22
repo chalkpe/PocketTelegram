@@ -22,7 +22,7 @@
  * @since 2015-10-20 19:17
  */
 
-namespace chalk\pockettelegram\model;
+namespace ChalkPE\PocketTelegram\model;
 
 class TextMessage extends Message {
     /** @var string */

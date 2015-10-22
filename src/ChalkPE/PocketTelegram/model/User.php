@@ -19,61 +19,45 @@
 
 /**
  * @author ChalkPE <chalkpe@gmail.com>
- * @since 2015-10-20 19:01
+ * @since 2015-10-20 18:28
  */
 
-namespace chalk\pockettelegram\model;
+namespace ChalkPE\PocketTelegram\model;
 
-class Chat implements Identifiable, Nameable {
-    const TYPE_PRIVATE = "private";
-    const TYPE_GROUP = "group";
-    const TYPE_CHANNEL = "channel";
-
+class User implements Identifiable, Nameable {
     /** @var int */
     private $id;
 
     /** @var string */
-    private $type;
-
-    /** @var string|null */
-    private $title = "";
-
-    /** @var string|null */
-    private $username = "";
-
-    /** @var string|null */
-    private $firstName = "";
+    private $firstName;
 
     /** @var string|null */
     private $lastName = "";
 
+    /** @var string|null */
+    private $username = "";
+
     /**
      * @param int $id
-     * @param string $type
-     * @param string|null $title
-     * @param string|null $username
-     * @param string|null $firstName
+     * @param string $firstName
      * @param string|null $lastName
+     * @param string|null $username
      */
-    public function __construct($id, $type, $title = "", $username = "", $firstName = "", $lastName = ""){
+    public function __construct($id, $firstName, $lastName = "", $username = ""){
         $this->id = $id;
-        $this->type = $type;
-        $this->title = $title;
-        $this->username = $username;
         $this->firstName = $firstName;
         $this->lastName = $lastName;
+        $this->username = $username;
     }
 
     /**
      * @param array $array
-     * @return Chat
+     * @return User
      */
     public static function create(array $array){
-        return new Chat(intval($array['id']), $array['type'],
-            isset($array['title'])      ? $array['title']      : "",
-            isset($array['username'])   ? $array['username']   : "",
-            isset($array['first_name']) ? $array['first_name'] : "",
-            isset($array['last_name'])  ? $array['last_name']  : "");
+        return new User(intval($array['id']), $array['first_name'],
+            isset($array['last_name']) ? $array['last_name'] : "",
+            isset($array['username'])  ? $array['username']  : "");
     }
 
     /**
@@ -86,27 +70,6 @@ class Chat implements Identifiable, Nameable {
     /**
      * @return string
      */
-    public function getType(){
-        return $this->type;
-    }
-
-    /**
-     * @return string|null
-     */
-    public function getTitle(){
-        return $this->title;
-    }
-
-    /**
-     * @return string|null
-     */
-    public function getUsername(){
-        return $this->username;
-    }
-
-    /**
-     * @return string|null
-     */
     public function getFirstName(){
         return $this->firstName;
     }
@@ -116,6 +79,13 @@ class Chat implements Identifiable, Nameable {
      */
     public function getLastName(){
         return $this->lastName;
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getUsername(){
+        return $this->username;
     }
 
     /**

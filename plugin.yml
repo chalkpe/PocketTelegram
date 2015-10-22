@@ -1,8 +1,8 @@
 name: PocketTelegram
-version: "1.0"
+version: "1.0-SNAPSHOT"
 
 author: ChalkPE
 website: http://chalk.pe
 
-main: chalk\pockettelegram\PocketTelegram
+main: ChalkPE\PocketTelegram\PocketTelegram
 api: [1.12.0, 1.13.0, 2.0.0]

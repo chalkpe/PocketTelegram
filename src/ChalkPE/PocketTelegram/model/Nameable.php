@@ -22,7 +22,7 @@
  * @since 2015-10-22 21:49
  */
 
-namespace chalk\pockettelegram\model;
+namespace ChalkPE\PocketTelegram\model;
 
 interface Nameable {
     /**

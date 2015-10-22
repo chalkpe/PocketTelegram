@@ -19,11 +19,38 @@
 
 /**
  * @author ChalkPE <chalkpe@gmail.com>
- * @since 2015-10-22 21:44
+ * @since 2015-10-21 00:01
  */
 
-namespace chalk\pockettelegram\model;
+namespace ChalkPE\PocketTelegram\event;
 
-interface Identifiable {
-    public function getId();
+use ChalkPE\PocketTelegram\model\Message;
+use ChalkPE\PocketTelegram\PocketTelegram;
+use pocketmine\event\plugin\PluginEvent;
+
+class TelegramMessageEvent extends PluginEvent {
+    public static $handlerList = null;
+
+    /** @var Message */
+    private $message;
+
+    public function __construct(Message $message){
+        parent::__construct(PocketTelegram::getInstance());
+
+        $this->message = $message;
+    }
+
+    /**
+     * @return Message
+     */
+    public function getMessage(){
+        return $this->message;
+    }
+
+    /**
+     * @param Message $message
+     */
+    public function setMessage($message){
+        $this->message = $message;
+    }
 }

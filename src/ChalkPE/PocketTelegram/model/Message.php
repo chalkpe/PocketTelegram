@@ -22,7 +22,7 @@
  * @since 2015-10-20 17:20
  */
 
-namespace chalk\pockettelegram\model;
+namespace ChalkPE\PocketTelegram\model;
 
 class Message implements Identifiable {
     /** @var int */

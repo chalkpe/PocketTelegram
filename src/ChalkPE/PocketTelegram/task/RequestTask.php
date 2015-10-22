@@ -22,9 +22,9 @@
  * @since 2015-10-18 20:50
  */
 
-namespace chalk\pockettelegram\task;
+namespace ChalkPE\PocketTelegram\task;
 
-use chalk\pockettelegram\PocketTelegram;
+use ChalkPE\PocketTelegram\PocketTelegram;
 use pocketmine\scheduler\AsyncTask;
 use pocketmine\Server;
 
