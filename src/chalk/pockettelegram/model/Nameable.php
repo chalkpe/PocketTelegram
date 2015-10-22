@@ -19,50 +19,29 @@
 
 /**
  * @author ChalkPE <chalkpe@gmail.com>
- * @since 2015-10-20 23:52
+ * @since 2015-10-22 21:49
  */
 
 namespace chalk\pockettelegram\model;
 
-class Update implements Identifiable {
-    /** @var int */
-    private $updateId;
-
-    /** @var Message|null */
-    private $message = null;
+interface Nameable {
+    /**
+     * @return string
+     */
+    public function getFirstName();
 
     /**
-     * @param int $updateId
-     * @param Message|null $message
+     * @return string|null
      */
-    public function __construct($updateId, $message = null){
-        $this->updateId = $updateId;
-        $this->message = $message;
-    }
-
-    public static function create(array $array){
-        return new Update(intval($array['update_id']),
-            isset($array['message']) ? Message::create($array['message']) : null);
-    }
+    public function getLastName();
 
     /**
-     * @return int
+     * @return string|null
      */
-    public function getId(){
-        return $this->getUpdateId();
-    }
+    public function getUsername();
 
     /**
-     * @return int
+     * @return string
      */
-    public function getUpdateId(){
-        return $this->updateId;
-    }
-
-    /**
-     * @return Message|null
-     */
-    public function getMessage(){
-        return $this->message;
-    }
+    public function getFullName();
 }

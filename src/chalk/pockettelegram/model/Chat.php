@@ -24,7 +24,7 @@
 
 namespace chalk\pockettelegram\model;
 
-class Chat {
+class Chat implements Identifiable, Nameable {
     const TYPE_PRIVATE = "private";
     const TYPE_GROUP = "group";
     const TYPE_CHANNEL = "channel";
@@ -116,5 +116,12 @@ class Chat {
      */
     public function getLastName(){
         return $this->lastName;
+    }
+
+    /**
+     * @return string
+     */
+    public function getFullName(){
+        return ($this->getLastName() === "") ? $this->getFirstName() : $this->getFirstName() . " " . $this->getLastName();
     }
 }

@@ -24,7 +24,7 @@
 
 namespace chalk\pockettelegram\model;
 
-class User {
+class User implements Identifiable, Nameable {
     /** @var int */
     private $id;
 

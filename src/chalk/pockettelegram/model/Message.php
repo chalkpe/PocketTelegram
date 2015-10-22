@@ -24,7 +24,7 @@
 
 namespace chalk\pockettelegram\model;
 
-class Message {
+class Message implements Identifiable {
     /** @var int */
     private $messageId;
 
@@ -77,6 +77,13 @@ class Message {
             isset($array['forward_from'])     ? User::create($array['forward_from'])        : null,
             isset($array['forward_date'])     ? intval($array['forward_date'])              : 0,
             isset($array['reply_to_message']) ? Message::create($array['reply_to_message']) : null);
+    }
+
+    /**
+     * @return int
+     */
+    public function getId(){
+        return $this->getMessageId();
     }
 
     /**
