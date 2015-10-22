@@ -212,6 +212,7 @@ class PocketTelegram extends PluginBase implements Listener {
         }else if($message instanceof TranslationContainer){
             $message = PocketTelegram::translateString($message);
         }
+        $message = TextFormat::clean($message);
 
         if($chatId instanceof Chat){
             $chatId = $chatId->getId();
@@ -221,16 +222,27 @@ class PocketTelegram extends PluginBase implements Listener {
             $replyToMessage = $replyToMessage->getMessageId();
         }
 
-        $params = [
-            'chat_id' => $chatId,
-            'text'    => TextFormat::clean($message)
-        ];
+        while(true){
+            $nextMessage = null;
+            if(($len = mb_strlen($message, 'UTF-8')) >= 4096){
+                $nextMessage = mb_substr($message, 4096, $len, 'UTF-8');
+                $message     = mb_substr($message,    0, 4096, 'UTF-8');
+            }
 
-        if(self::$enableMarkdownParsing) $params['parse_mode']               = "Markdown";
-        if(self::$disableWebPagePreview) $params['disable_web_page_preview'] = "true";
-        if(!is_null($replyToMessage))    $params['reply_to_message_id']      = $replyToMessage;
+            $params = [
+                'chat_id' => $chatId,
+                'text'    => $message
+            ];
 
-        PocketTelegram::request("sendMessage", $params);
+            if(self::$enableMarkdownParsing) $params['parse_mode']               = "Markdown";
+            if(self::$disableWebPagePreview) $params['disable_web_page_preview'] = "true";
+            if(!is_null($replyToMessage))    $params['reply_to_message_id']      = $replyToMessage;
+
+            PocketTelegram::request("sendMessage", $params);
+
+            if(is_null($nextMessage) or $nextMessage === "") break;
+            $message = $nextMessage;
+        }
     }
 
 
