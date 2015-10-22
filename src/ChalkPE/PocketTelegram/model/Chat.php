@@ -36,16 +36,16 @@ class Chat implements Identifiable, Nameable {
     private $type;
 
     /** @var string|null */
-    private $title = "";
+    private $title = null;
 
     /** @var string|null */
-    private $username = "";
+    private $username = null;
 
     /** @var string|null */
-    private $firstName = "";
+    private $firstName = null;
 
     /** @var string|null */
-    private $lastName = "";
+    private $lastName = null;
 
     /**
      * @param int $id
@@ -55,7 +55,7 @@ class Chat implements Identifiable, Nameable {
      * @param string|null $firstName
      * @param string|null $lastName
      */
-    public function __construct($id, $type, $title = "", $username = "", $firstName = "", $lastName = ""){
+    public function __construct($id, $type, $title = null, $username = null, $firstName = null, $lastName = null){
         $this->id = $id;
         $this->type = $type;
         $this->title = $title;
@@ -70,10 +70,10 @@ class Chat implements Identifiable, Nameable {
      */
     public static function create(array $array){
         return new Chat(intval($array['id']), $array['type'],
-            isset($array['title'])      ? $array['title']      : "",
-            isset($array['username'])   ? $array['username']   : "",
-            isset($array['first_name']) ? $array['first_name'] : "",
-            isset($array['last_name'])  ? $array['last_name']  : "");
+            isset($array['title'])      ? $array['title']      : null,
+            isset($array['username'])   ? $array['username']   : null,
+            isset($array['first_name']) ? $array['first_name'] : null,
+            isset($array['last_name'])  ? $array['last_name']  : null);
     }
 
     /**
@@ -122,6 +122,6 @@ class Chat implements Identifiable, Nameable {
      * @return string
      */
     public function getFullName(){
-        return ($this->getLastName() === "") ? $this->getFirstName() : $this->getFirstName() . " " . $this->getLastName();
+        return ($this->getLastName() === null) ? $this->getFirstName() : $this->getFirstName() . " " . $this->getLastName();
     }
 }

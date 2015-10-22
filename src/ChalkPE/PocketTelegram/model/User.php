@@ -32,10 +32,10 @@ class User implements Identifiable, Nameable {
     private $firstName;
 
     /** @var string|null */
-    private $lastName = "";
+    private $lastName = null;
 
     /** @var string|null */
-    private $username = "";
+    private $username = null;
 
     /**
      * @param int $id
@@ -43,7 +43,7 @@ class User implements Identifiable, Nameable {
      * @param string|null $lastName
      * @param string|null $username
      */
-    public function __construct($id, $firstName, $lastName = "", $username = ""){
+    public function __construct($id, $firstName, $lastName = null, $username = null){
         $this->id = $id;
         $this->firstName = $firstName;
         $this->lastName = $lastName;
@@ -56,8 +56,8 @@ class User implements Identifiable, Nameable {
      */
     public static function create(array $array){
         return new User(intval($array['id']), $array['first_name'],
-            isset($array['last_name']) ? $array['last_name'] : "",
-            isset($array['username'])  ? $array['username']  : "");
+            isset($array['last_name']) ? $array['last_name'] : null,
+            isset($array['username'])  ? $array['username']  : null);
     }
 
     /**
@@ -92,6 +92,6 @@ class User implements Identifiable, Nameable {
      * @return string
      */
     public function getFullName(){
-        return ($this->getLastName() === "") ? $this->getFirstName() : $this->getFirstName() . " " . $this->getLastName();
+        return ($this->getLastName() === null) ? $this->getFirstName() : $this->getFirstName() . " " . $this->getLastName();
     }
 }

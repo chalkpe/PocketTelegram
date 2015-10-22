@@ -41,13 +41,13 @@ class Message implements Identifiable {
     private $forwardFrom = null;
 
     /** @var int|null */
-    private $forwardDate = 0;
+    private $forwardDate = null;
 
     /** @var Message|null */
     private $replyToMessage = null;
 
     /**
-     * @param int $messageId
+     * @param Message|int $messageId
      * @param int $date
      * @param Chat $chat
      * @param User|null $from
@@ -55,7 +55,17 @@ class Message implements Identifiable {
      * @param int|null $forwardDate
      * @param Message|null $replyToMessage
      */
-    public function __construct($messageId, $date, Chat $chat, User $from = null, User $forwardFrom = null, $forwardDate = 0, Message $replyToMessage = null){
+    public function __construct($messageId, $date, Chat $chat, User $from = null, User $forwardFrom = null, $forwardDate = null, Message $replyToMessage = null){
+        if($messageId instanceof Message){
+            $date = $messageId->getDate();
+            $chat = $messageId->getChat();
+            $from = $messageId->getFrom();
+            $forwardFrom = $messageId->getForwardFrom();
+            $forwardDate = $messageId->getForwardDate();
+            $replyToMessage = $messageId->getReplyToMessage();
+            $messageId = $messageId->getMessageId();
+        }
+
         $this->messageId = $messageId;
         $this->date = $date;
         $this->chat = $chat;
@@ -67,15 +77,17 @@ class Message implements Identifiable {
 
     /**
      * @param array $array
-     * @return Message
+     * @param bool $cast
+     * @return Message|TextMessage|PhotoMessage
      */
-    public static function create(array $array){
-        if(isset($array['text'])) return TextMessage::create($array);
+    public static function create(array $array, $cast = true){
+        if($cast and isset($array['text'])) return TextMessage::create($array);
+        if($cast and isset($array['photo'])) return PhotoMessage::create($array);
 
         return new Message(intval($array['message_id']), intval($array['date']), Chat::create($array['chat']),
             isset($array['from'])             ? User::create($array['from'])                : null,
             isset($array['forward_from'])     ? User::create($array['forward_from'])        : null,
-            isset($array['forward_date'])     ? intval($array['forward_date'])              : 0,
+            isset($array['forward_date'])     ? intval($array['forward_date'])              : null,
             isset($array['reply_to_message']) ? Message::create($array['reply_to_message']) : null);
     }
 

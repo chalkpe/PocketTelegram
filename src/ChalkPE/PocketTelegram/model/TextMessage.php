@@ -26,21 +26,14 @@ namespace ChalkPE\PocketTelegram\model;
 
 class TextMessage extends Message {
     /** @var string */
-    private $text = "";
+    private $text;
 
     /**
-     * @param int $messageId
-     * @param int $date
-     * @param Chat $chat
+     * @param Message $message
      * @param string $text
-     * @param User|null $from
-     * @param User|null $forwardFrom
-     * @param int $forwardDate
-     * @param Message|null $replyToMessage
      */
-    public function __construct($messageId, $date, Chat $chat, $text, User $from = null, User $forwardFrom = null, $forwardDate = 0, Message $replyToMessage = null){
-        parent::__construct($messageId, $date, $chat, $from, $forwardFrom, $forwardDate, $replyToMessage);
-
+    public function __construct(Message $message, $text){
+        parent::__construct($message, null, null);
         $this->text = $text;
     }
 
@@ -49,11 +42,7 @@ class TextMessage extends Message {
      * @return TextMessage
      */
     public static function create(array $array){
-        return new TextMessage(intval($array['message_id']), intval($array['date']), Chat::create($array['chat']), $array['text'],
-            isset($array['from'])             ? User::create($array['from'])                : null,
-            isset($array['forward_from'])     ? User::create($array['forward_from'])        : null,
-            isset($array['forward_date'])     ? intval($array['forward_date'])              : 0,
-            isset($array['reply_to_message']) ? Message::create($array['reply_to_message']) : null);
+        return new TextMessage(Message::create($array, false), $array['text']);
     }
 
     /**
