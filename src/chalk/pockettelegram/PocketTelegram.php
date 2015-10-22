@@ -67,31 +67,42 @@ class PocketTelegram extends PluginBase implements Listener {
 
 
     /** @var string */
-    private static $defaultChannel = "";
-
-    /** @var bool */
-    private static $broadcastPlayerChats = false, $disableWebPagePreview = true, $enableMarkdownParsing = false, $debugMode = false;
+    private static $token = "", $defaultChannel = "";
 
     /** @var int */
     private static $updateInterval = 20;
 
+    /** @var User */
+    public static $me = null;
+
+    /** @var bool */
+    private static $broadcastToTelegram = true, $broadcastTelegramMessages = true, $enableTelegramCommands = true;
+
+    /** @var bool */
+    private static $disableWebPagePreview = true, $enableMarkdownParsing = false;
+
+    /** @var bool */
+    private static $debugMode = false;
+
     public function onEnable(){
         $this->saveDefaultConfig();
-        PocketTelegram::$token = $this->getConfig()->get("token", "");
-        PocketTelegram::$defaultChannel = $this->getConfig()->get("defaultChannel", "");
+        self::$token          = $this->getConfig()->get("token",          "");
+        self::$defaultChannel = $this->getConfig()->get("defaultChannel", "");
+        self::$updateInterval = $this->getConfig()->get("updateInterval", 20);
 
-        if(PocketTelegram::$token === "" or PocketTelegram::$defaultChannel === ""){
+        if(self::$token === "" or self::$defaultChannel === ""){
             $this->getLogger()->alert("You need to set your configs to enable this plugin");
             $this->getLogger()->alert("-> " . $this->getDataFolder() . "config.yml");
             $this->getServer()->getPluginManager()->disablePlugin($this);
             return;
         }
 
-        PocketTelegram::$broadcastPlayerChats = $this->getConfig()->get("broadcastPlayerChats", false);
-        PocketTelegram::$disableWebPagePreview = $this->getConfig()->get("disableWebPagePreview", true);
-        PocketTelegram::$enableMarkdownParsing = $this->getConfig()->get("enableMarkdownParsing", false);
-        PocketTelegram::$debugMode = $this->getConfig()->get("debugMode", false);
-        PocketTelegram::$updateInterval = $this->getConfig()->get("updateInterval", 20);
+        self::$broadcastToTelegram       = $this->getConfig()->get("broadcastToTelegram",       true);
+        self::$broadcastTelegramMessages = $this->getConfig()->get("broadcastTelegramMessages", true);
+        self::$enableTelegramCommands    = $this->getConfig()->get("enableTelegramCommands",    true);
+        self::$disableWebPagePreview     = $this->getConfig()->get("disableWebPagePreview",     true);
+        self::$enableMarkdownParsing     = $this->getConfig()->get("enableMarkdownParsing",     false);
+        self::$debugMode                 = $this->getConfig()->get("debugMode",                 false);
 
         $this->getServer()->getPluginManager()->registerEvents($this, $this);
 
@@ -99,32 +110,34 @@ class PocketTelegram extends PluginBase implements Listener {
         PocketTelegram::getUpdates();
     }
 
+
+
+
+
     /**
      * @param string $message
      */
     public static function debug($message){
-        if(PocketTelegram::$debugMode){
-            PocketTelegram::getInstance()->getLogger()->info($message);
-        }
+        if(PocketTelegram::$debugMode) PocketTelegram::getInstance()->getLogger()->debug($message);
     }
 
     /**
-     * @param TranslationContainer $container
+     * @param string|TranslationContainer $str
+     * @param string[] $params
      * @return string
      */
-    public static function translateString(TranslationContainer $container){
-        return Server::getInstance()->getLanguage()->translateString($container->getText(), $container->getParameters());
+    public static function translateString($str, array $params = null){
+        if($str instanceof TranslationContainer){
+            $params = $str->getParameters();
+            $str = $str->getText();
+        }
+
+        return Server::getInstance()->getLanguage()->translateString($str, $params);
     }
 
 
 
 
-
-    /** @var string */
-    private static $token = "";
-
-    /** @var User */
-    public static $me = null;
 
     /**
      * @return string
@@ -153,8 +166,7 @@ class PocketTelegram extends PluginBase implements Listener {
      * @param callable $callback
      */
     public static function request($method, $params, $callback = null){
-        self::debug("Requesting " . $method . " - " . json_encode($params));
-
+        PocketTelegram::debug("Requesting " . $method . " - " . json_encode($params));
         Server::getInstance()->getScheduler()->scheduleAsyncTask(new RequestTask(PocketTelegram::getBaseURL() . $method, $params, $callback));
     }
 
@@ -162,7 +174,7 @@ class PocketTelegram extends PluginBase implements Listener {
      * @return User|null
      */
     public static function getMe(){
-        if(self::$me === null){
+        if(PocketTelegram::$me === null){
             PocketTelegram::request("getMe", [], function($json){
                 $result = json_decode($json, true);
                 if(!isset($result['ok']) or $result['ok'] !== true) return;
@@ -171,19 +183,25 @@ class PocketTelegram extends PluginBase implements Listener {
             });
         }
 
-        return self::$me;
+        return PocketTelegram::$me;
     }
 
-    public static function getUpdates(){
-        Server::getInstance()->getScheduler()->scheduleDelayedTask(new GetUpdatesTask(), self::$updateInterval);
+    /**
+     * @param int $delay
+     */
+    public static function getUpdates($delay = -1){
+        if($delay < 0) $delay = self::$updateInterval;
+        if($delay < 0) return;
+
+        Server::getInstance()->getScheduler()->scheduleDelayedTask(new GetUpdatesTask(), $delay);
     }
 
     /**
      * @param TextMessage|TranslationContainer|string $message
      * @param Chat|string $chatId
-     * @param Message $replyToMessage
+     * @param Message|int $replyToMessage
      */
-    public static function sendMessage($message, $chatId, Message $replyToMessage = null){
+    public static function sendMessage($message, $chatId, $replyToMessage = null){
         if(is_null($message) or $message === "") return;
 
         if($message instanceof TextMessage){
@@ -196,14 +214,18 @@ class PocketTelegram extends PluginBase implements Listener {
             $chatId = $chatId->getId();
         }
 
+        if($replyToMessage instanceof Message){
+            $replyToMessage = $replyToMessage->getMessageId();
+        }
+
         $params = [
             'chat_id' => $chatId,
-            'text' => TextFormat::clean($message)
+            'text'    => TextFormat::clean($message)
         ];
 
-        if(self::$enableMarkdownParsing) $params['parse_mode'] = "Markdown";
+        if(self::$enableMarkdownParsing) $params['parse_mode']               = "Markdown";
         if(self::$disableWebPagePreview) $params['disable_web_page_preview'] = "true";
-        if(!is_null($replyToMessage)) $params['reply_to_message_id'] = $replyToMessage->getMessageId();
+        if(!is_null($replyToMessage))    $params['reply_to_message_id']      = $replyToMessage;
 
         PocketTelegram::request("sendMessage", $params);
     }
@@ -213,22 +235,26 @@ class PocketTelegram extends PluginBase implements Listener {
 
 
     public function onTelegramMessage(TelegramMessageEvent $event){
+        if(!self::$broadcastTelegramMessages) return;
+
         $message = $event->getMessage();
-        if(!($message instanceof TextMessage)) return;
-
-        $text = $message->getText();
-        if($text[0] === '/'){
-            self::handleCommands($message);
-            return;
-        }
-
-        if(!is_null($message->getFrom())){
-            $username = $message->getFrom()->getUsername();
-            if($username === "") return;
-
-            if($message->getChat()->getId() === self::$defaultChannel){
-                Server::getInstance()->broadcastMessage(Server::getInstance()->getLanguage()->translateString("chat.type.text", [$username, $text]));
+        if($message instanceof TextMessage){
+            $text = $message->getText();
+            if(self::$enableTelegramCommands and $text[0] === '/'){
+                self::handleCommands($message);
+                return;
             }
+
+            if(!is_null($message->getFrom())){
+                $username = $message->getFrom()->getUsername();
+                if($username === "") return;
+
+                if($message->getChat()->getId() === self::$defaultChannel){
+                    Server::getInstance()->broadcastMessage(PocketTelegram::translateString("chat.type.text", [$username, $text]));
+                }
+            }
+        }else{
+            PocketTelegram::debug("Unknown type of message sent");
         }
     }
 
@@ -236,9 +262,9 @@ class PocketTelegram extends PluginBase implements Listener {
      * @param TextMessage $message
      */
     private static function handleCommands(TextMessage $message){
-        $command = explode(" ", substr($message->getText(), 1));
-        if(strpos("@", $command[0]) !== false){
-            $mainCommand = explode("@", $command[0]);
+        $command = explode(' ', substr($message->getText(), 1));
+        if(strpos('@', $command[0]) !== false){
+            $mainCommand = explode('@', $command[0]);
 
             if(!is_null($me = PocketTelegram::getMe()) and strToLower($mainCommand[1]) !== strToLower($me->getUsername())) return;
             $command[0] = $mainCommand[0];
@@ -255,7 +281,7 @@ class PocketTelegram extends PluginBase implements Listener {
                     if($player->isOnline()) $players[] = $player->getDisplayName();
                 }
 
-                $str = PocketTelegram::translateString(new TranslationContainer("commands.players.list", [count($players), Server::getInstance()->getMaxPlayers()]));
+                $str = PocketTelegram::translateString("commands.players.list", [count($players), Server::getInstance()->getMaxPlayers()]);
                 PocketTelegram::sendMessage($str . PHP_EOL . implode(", " , $players), $message->getChat(), $message);
                 break;
         }
@@ -278,13 +304,13 @@ class PocketTelegram extends PluginBase implements Listener {
     }
 
     private static function handleEvents(Event $event){
-        if(!self::$broadcastPlayerChats) return;
+        if(!self::$broadcastToTelegram) return;
         if($event instanceof Cancellable and $event->isCancelled()) return;
 
         $message = null;
         switch(true){
             case $event instanceof PlayerChatEvent:
-                $message = Server::getInstance()->getLanguage()->translateString($event->getFormat(), [$event->getPlayer()->getName(), $event->getMessage()]);
+                $message = PocketTelegram::translateString($event->getFormat(), [$event->getPlayer()->getName(), $event->getMessage()]);
                 break;
 
             case $event instanceof PlayerJoinEvent:

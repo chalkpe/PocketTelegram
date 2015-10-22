@@ -3,23 +3,39 @@
 token: ""
 
 # The chat_id of your Telegram group or the public name of your Telegram channel, e.g. -23612486, "@chalkpe_status"
-# The bot must be joined to the group or be a administrator of the channel
-# You can get your chat_id of the group by using the "/id" command in there
+# Note that the bot must be joined to the group or be a administrator of the channel
+# You can get your chat_id of the group by using the "/chat_id" command in there
 defaultChannel: ""
 
-# The interval of your bot's message checking (20 = 1s)
+# The interval of the bot message updating from Telegram API (20 = 1s)
+# If it's negative value, the updating will be disabled
 updateInterval: 20
 
-# If it true, player chats will be broadcasted to your channel
-broadcastPlayerChats: false
 
-# If it true, link previews for links in your messages will be disabled
+
+
+# If it's true, player activities of your server will be broadcasted to your Telegram group/channel
+broadcastToTelegram: true
+
+# If it's true, user messages of your Telegram group/channel will be broadcasted to your server
+broadcastTelegramMessages: true
+
+# If it's true, your bot will handle the command messages from Telegram
+# Available Telegram commands: '/chat_id', '/online'
+enableTelegramCommands: true
+
+
+
+
+# If it's true, link previews for links in your messages will be disabled in Telegram
 disableWebPagePreview: true
 
-# If it true, Markdown syntax will be applied to your messages
+# If it's true, Markdown syntax will be applied to your messages in Telegram
 # See "https://core.telegram.org/bots/api#using-markdown"
 enableMarkdownParsing: false
 
 
-# If it true, the plugin shows Telegram API responses to your console
+
+
+# If it's true, the plugin will show Telegram API responses to your console
 debugMode: false

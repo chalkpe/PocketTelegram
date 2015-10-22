@@ -41,16 +41,15 @@ class GetUpdatesTask extends PluginTask {
     public function onRun($currentTick){
         PocketTelegram::request("getUpdates", is_null(self::$lastUpdate) ? ['limit' => 2048] : ['offset' => self::$lastUpdate->getUpdateId() + 1], function($json){
             $response = json_decode($json, true);
-            if(!isset($response['ok']) or $response['ok'] !== true) return;
-
-            foreach($response['result'] as $result){
-                $update = Update::create($result);
-                GetUpdatesTask::$lastUpdate = $update;
-
-                if(is_null($update->getMessage())) continue;
-                Server::getInstance()->getPluginManager()->callEvent(new TelegramMessageEvent($update->getMessage()));
+            if(!isset($response['ok']) or $response['ok'] !== true){
+                PocketTelegram::getUpdates(0);
+                return;
             }
 
+            foreach($response['result'] as $result){
+                GetUpdatesTask::$lastUpdate = $update = Update::create($result);
+                if(!is_null($update->getMessage())) Server::getInstance()->getPluginManager()->callEvent(new TelegramMessageEvent($update->getMessage()));
+            }
             PocketTelegram::getUpdates();
         });
     }

@@ -48,18 +48,18 @@ class RequestTask extends AsyncTask {
         $this->params = $params;
         $this->callback = $callback;
 
-        PocketTelegram::debug($this->url . " - " . json_encode($this->params));
+        PocketTelegram::debug("Requesting " . $this->url . " - " . json_encode($this->params));
     }
 
     public function onRun(){
         $session = curl_init();
-        curl_setopt($session, CURLOPT_URL, $this->url);
+        curl_setopt($session, CURLOPT_URL,            $this->url);
         curl_setopt($session, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($session, CURLOPT_FOLLOWLOCATION, true);
-        curl_setopt($session, CURLOPT_POST, 1);
-        curl_setopt($session, CURLOPT_POSTFIELDS, $this->params);
+        curl_setopt($session, CURLOPT_POST,           1);
+        curl_setopt($session, CURLOPT_POSTFIELDS,     $this->params);
         curl_setopt($session, CURLOPT_SSL_VERIFYPEER, 0);
-        curl_setopt($session, CURLOPT_CONNECTTIMEOUT, 500);
+        curl_setopt($session, CURLOPT_CONNECTTIMEOUT, 1000);
 
         $this->setResult(curl_exec($session));
         curl_close($session);
