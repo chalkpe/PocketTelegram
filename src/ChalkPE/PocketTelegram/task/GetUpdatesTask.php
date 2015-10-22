@@ -34,6 +34,9 @@ class GetUpdatesTask extends PluginTask {
     /** @var Update|null */
     public static $lastUpdate = null;
 
+    /** @var int */
+    public static $errorCounter = 1;
+
     public function __construct(){
         parent::__construct(PocketTelegram::getInstance());
     }
@@ -42,7 +45,7 @@ class GetUpdatesTask extends PluginTask {
         PocketTelegram::request("getUpdates", is_null(self::$lastUpdate) ? [] : ['offset' => self::$lastUpdate->getUpdateId() + 1], function($json){
             $response = json_decode($json, true);
             if(!isset($response['ok']) or $response['ok'] !== true){
-                PocketTelegram::getUpdates(0);
+                PocketTelegram::getUpdates(GetUpdatesTask::$errorCounter *= 2);
                 return;
             }
 
@@ -50,6 +53,8 @@ class GetUpdatesTask extends PluginTask {
                 GetUpdatesTask::$lastUpdate = $update = Update::create($result);
                 if(!is_null($update->getMessage())) Server::getInstance()->getPluginManager()->callEvent(new TelegramMessageEvent($update->getMessage()));
             }
+
+            GetUpdatesTask::$errorCounter = 1;
             PocketTelegram::getUpdates();
         });
     }
