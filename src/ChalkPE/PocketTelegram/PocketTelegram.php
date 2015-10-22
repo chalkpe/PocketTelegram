@@ -93,8 +93,8 @@ class PocketTelegram extends PluginBase implements Listener {
         self::$defaultChannel = $this->getConfig()->get("defaultChannel", "");
         self::$updateInterval = $this->getConfig()->get("updateInterval", 20);
 
-        if(self::$token === "" or self::$defaultChannel === ""){
-            $this->getLogger()->alert("You need to set your configs to enable this plugin");
+        if(self::$token === ""){
+            $this->getLogger()->alert("You need to set your Telegram bot token to enable this plugin");
             $this->getLogger()->alert("-> " . $this->getDataFolder() . "config.yml");
             $this->getServer()->getPluginManager()->disablePlugin($this);
             return;
@@ -264,7 +264,7 @@ class PocketTelegram extends PluginBase implements Listener {
                 $username = $message->getFrom()->getUsername();
                 if($username === "") return;
 
-                if($message->getChat()->getId() === self::$defaultChannel){
+                if($message->getChat()->getId() === PocketTelegram::getDefaultChannel()){
                     Server::getInstance()->broadcastMessage(PocketTelegram::translateString("chat.type.text", [$username, $text]));
                 }
             }
@@ -353,6 +353,6 @@ class PocketTelegram extends PluginBase implements Listener {
                 return;
         }
 
-        PocketTelegram::sendMessage($message, self::$defaultChannel);
+        if(PocketTelegram::getDefaultChannel() !== "") PocketTelegram::sendMessage($message, PocketTelegram::getDefaultChannel());
     }
 }
