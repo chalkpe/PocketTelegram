@@ -24,7 +24,7 @@
 
 namespace ChalkPE\PocketTelegram\model;
 
-class Update implements Identifiable {
+class Update extends Model implements Identifiable {
     /** @var int */
     private $updateId;
 
@@ -36,6 +36,8 @@ class Update implements Identifiable {
      * @param Message|null $message
      */
     public function __construct($updateId, $message = null){
+        parent::__construct();
+
         $this->updateId = $updateId;
         $this->message = $message;
     }

@@ -8,7 +8,7 @@
 namespace ChalkPE\PocketTelegram\model;
 
 
-class PhotoSize implements Identifiable {
+class PhotoSize extends Model implements Identifiable {
     /** @var string */
     private $fileId;
 
@@ -25,6 +25,8 @@ class PhotoSize implements Identifiable {
      * @param int|null $fileSize
      */
     public function __construct($fileId, $width, $height, $fileSize = null){
+        parent::__construct();
+
         $this->fileId = $fileId;
         $this->width = $width;
         $this->height = $height;

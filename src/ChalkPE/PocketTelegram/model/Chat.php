@@ -24,7 +24,7 @@
 
 namespace ChalkPE\PocketTelegram\model;
 
-class Chat implements Identifiable, Nameable {
+class Chat extends Model implements Identifiable, Nameable {
     const TYPE_PRIVATE = "private";
     const TYPE_GROUP = "group";
     const TYPE_CHANNEL = "channel";
@@ -56,6 +56,8 @@ class Chat implements Identifiable, Nameable {
      * @param string|null $lastName
      */
     public function __construct($id, $type, $title = null, $username = null, $firstName = null, $lastName = null){
+        parent::__construct();
+
         $this->id = $id;
         $this->type = $type;
         $this->title = $title;

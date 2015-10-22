@@ -24,7 +24,7 @@
 
 namespace ChalkPE\PocketTelegram\model;
 
-class User implements Identifiable, Nameable {
+class User extends Model implements Identifiable, Nameable {
     /** @var int */
     private $id;
 
@@ -44,6 +44,8 @@ class User implements Identifiable, Nameable {
      * @param string|null $username
      */
     public function __construct($id, $firstName, $lastName = null, $username = null){
+        parent::__construct();
+
         $this->id = $id;
         $this->firstName = $firstName;
         $this->lastName = $lastName;

@@ -24,7 +24,7 @@
 
 namespace ChalkPE\PocketTelegram\model;
 
-class Message implements Identifiable {
+class Message extends Model implements Identifiable {
     /** @var int */
     private $messageId;
 
@@ -56,6 +56,8 @@ class Message implements Identifiable {
      * @param Message|null $replyToMessage
      */
     public function __construct($messageId, $date, Chat $chat, User $from = null, User $forwardFrom = null, $forwardDate = null, Message $replyToMessage = null){
+        parent::__construct();
+
         if($messageId instanceof Message){
             $date = $messageId->getDate();
             $chat = $messageId->getChat();
