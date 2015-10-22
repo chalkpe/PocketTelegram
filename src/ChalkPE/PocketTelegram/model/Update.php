@@ -24,6 +24,8 @@
 
 namespace ChalkPE\PocketTelegram\model;
 
+use ChalkPE\PocketTelegram\model\message\Message;
+
 class Update extends Model implements Identifiable {
     /** @var int */
     private $updateId;
