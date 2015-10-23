@@ -24,26 +24,18 @@
 
 namespace ChalkPE\PocketTelegram;
 
-use ChalkPE\PocketTelegram\event\TelegramMessageEvent;
 use ChalkPE\PocketTelegram\model\Chat;
 use ChalkPE\PocketTelegram\model\message\Message;
 use ChalkPE\PocketTelegram\model\message\TextMessage;
 use ChalkPE\PocketTelegram\model\User;
 use ChalkPE\PocketTelegram\task\GetUpdatesTask;
 use ChalkPE\PocketTelegram\task\RequestTask;
-use pocketmine\event\Cancellable;
-use pocketmine\event\Event;
-use pocketmine\event\Listener;
-use pocketmine\event\player\PlayerChatEvent;
-use pocketmine\event\player\PlayerDeathEvent;
-use pocketmine\event\player\PlayerJoinEvent;
-use pocketmine\event\player\PlayerQuitEvent;
 use pocketmine\event\TranslationContainer;
 use pocketmine\plugin\PluginBase;
 use pocketmine\Server;
 use pocketmine\utils\TextFormat;
 
-class PocketTelegram extends PluginBase implements Listener {
+class PocketTelegram extends PluginBase {
     /** @var PocketTelegram */
     private static $instance = null;
 
@@ -64,8 +56,6 @@ class PocketTelegram extends PluginBase implements Listener {
 
 
 
-
-
     /** @var string */
     private static $token = "", $defaultChannel = "";
 
@@ -76,16 +66,13 @@ class PocketTelegram extends PluginBase implements Listener {
     public static $me = null;
 
     /** @var bool */
-    private static $broadcastToTelegram = true, $broadcastTelegramMessages = true, $enableTelegramCommands = true;
+    public static $broadcastToTelegram = true, $broadcastTelegramMessages = true, $enableTelegramCommands = true;
 
     /** @var bool */
     private static $disableWebPagePreview = true, $enableMarkdownParsing = false;
 
     /** @var bool */
     private static $debugMode = false;
-
-    /** @var int[] */
-    public static $lastCommand = [];
 
     public function onEnable(){
         $this->saveDefaultConfig();
@@ -107,13 +94,11 @@ class PocketTelegram extends PluginBase implements Listener {
         self::$enableMarkdownParsing     = $this->getConfig()->get("enableMarkdownParsing",     false);
         self::$debugMode                 = $this->getConfig()->get("debugMode",                 false);
 
-        $this->getServer()->getPluginManager()->registerEvents($this, $this);
+        $this->getServer()->getPluginManager()->registerEvents(new EventHandler(), $this);
 
         PocketTelegram::getMe();
         PocketTelegram::getUpdates();
     }
-
-
 
 
 
@@ -243,116 +228,5 @@ class PocketTelegram extends PluginBase implements Listener {
             if(is_null($nextMessage) or $nextMessage === "") break;
             $message = $nextMessage;
         }
-    }
-
-
-
-
-
-    public function onTelegramMessage(TelegramMessageEvent $event){
-        if(!self::$broadcastTelegramMessages) return;
-
-        $message = $event->getMessage();
-        if($message instanceof TextMessage){
-            $text = $message->getText();
-            if(self::$enableTelegramCommands and $text[0] === '/'){
-                self::handleCommands($message);
-                return;
-            }
-
-            if(!is_null($message->getFrom())){
-                $username = $message->getFrom()->getUsername();
-                if($username === "") return;
-
-                if($message->getChat()->getId() === PocketTelegram::getDefaultChannel()){
-                    Server::getInstance()->broadcastMessage(PocketTelegram::translateString("chat.type.text", [$username, $text]));
-                }
-            }
-        }else{
-            PocketTelegram::debug("Unknown type of message sent");
-        }
-    }
-
-    /**
-     * @param TextMessage $message
-     */
-    private static function handleCommands(TextMessage $message){
-        $key = $message->getChat()->getId();
-        if(!isset(self::$lastCommand[$key])) self::$lastCommand[$key] = 0;
-
-        $diff = time() - self::$lastCommand[$key];
-        self::$lastCommand[$key] = time();
-        if($diff < 2){
-            return;
-        }
-
-        $command = explode(' ', substr($message->getText(), 1));
-        if(strpos($command[0], '@') !== false){
-            $mainCommand = explode('@', $command[0]);
-
-            if(!is_null($me = PocketTelegram::getMe()) and strToLower($mainCommand[1]) !== strToLower($me->getUsername())) return;
-            $command[0] = $mainCommand[0];
-        }
-
-        switch(strToLower($command[0])){
-            case "chat_id":
-                PocketTelegram::sendMessage($message->getChat()->getId(), $message->getChat(), $message);
-                break;
-
-            case "online":
-                $players = [];
-                foreach(Server::getInstance()->getOnlinePlayers() as $player){
-                    if($player->isOnline()) $players[] = $player->getDisplayName();
-                }
-
-                $str = PocketTelegram::translateString("commands.players.list", [count($players), Server::getInstance()->getMaxPlayers()]);
-                PocketTelegram::sendMessage($str . PHP_EOL . implode(", " , $players), $message->getChat(), $message);
-                break;
-        }
-    }
-
-    public function onPlayerChat(PlayerChatEvent $event){
-        self::handleEvents($event);
-    }
-
-    public function onPlayerJoin(PlayerJoinEvent $event){
-        self::handleEvents($event);
-    }
-
-    public function onPlayerQuit(PlayerQuitEvent $event){
-        self::handleEvents($event);
-    }
-
-    public function onPlayerDeath(PlayerDeathEvent $event){
-        self::handleEvents($event);
-    }
-
-    private static function handleEvents(Event $event){
-        if(!self::$broadcastToTelegram) return;
-        if($event instanceof Cancellable and $event->isCancelled()) return;
-
-        $message = null;
-        switch(true){
-            case $event instanceof PlayerChatEvent:
-                $message = PocketTelegram::translateString($event->getFormat(), [$event->getPlayer()->getName(), $event->getMessage()]);
-                break;
-
-            case $event instanceof PlayerJoinEvent:
-                $message = $event->getJoinMessage();
-                break;
-
-            case $event instanceof PlayerQuitEvent:
-                $message = $event->getQuitMessage();
-                break;
-
-            case $event instanceof PlayerDeathEvent:
-                $message = $event->getDeathMessage();
-                break;
-
-            default:
-                return;
-        }
-
-        if(PocketTelegram::getDefaultChannel() !== "") PocketTelegram::sendMessage($message, PocketTelegram::getDefaultChannel());
     }
 }

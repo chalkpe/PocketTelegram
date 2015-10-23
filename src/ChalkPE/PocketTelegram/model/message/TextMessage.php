@@ -51,4 +51,18 @@ class TextMessage extends Message {
     public function getText(){
         return $this->text;
     }
+
+    /**
+     * @return bool
+     */
+    public function isCommand(){
+        return strpos($this->getText(), '/') === 0;
+    }
+
+    /**
+     * @return string[]|null
+     */
+    public function getCommands(){
+        return $this->isCommand() ? explode(' ', substr($this->getText(), 1)) : null;
+    }
 }

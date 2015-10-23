@@ -60,7 +60,7 @@ class Message extends Model implements Identifiable {
      * @param int|null $forwardDate
      * @param Message|null $replyToMessage
      */
-    public function __construct($messageId, $date, Chat $chat, User $from = null, User $forwardFrom = null, $forwardDate = null, Message $replyToMessage = null){
+    public function __construct($messageId, $date, $chat, User $from = null, User $forwardFrom = null, $forwardDate = null, Message $replyToMessage = null){
         parent::__construct();
 
         if($messageId instanceof Message){
