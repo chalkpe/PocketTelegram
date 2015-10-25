@@ -1,5 +1,5 @@
 name: PocketTelegram
-version: "1.0-SNAPSHOT"
+version: "1.0"
 description: The Telegram Bot API for PocketMine-MP with many features
 
 author: ChalkPE
