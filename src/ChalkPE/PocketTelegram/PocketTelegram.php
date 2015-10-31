@@ -98,6 +98,8 @@ class PocketTelegram extends PluginBase {
 
         PocketTelegram::getMe();
         PocketTelegram::getUpdates();
+
+        if($this->getConfig()->get("broadcastServerStart", false) === true) PocketTelegram::sendMessage(PocketTelegram::translateString("pocketmine.server.start", [TextFormat::AQUA . $this->getServer()->getVersion()]) . PHP_EOL . PocketTelegram::translateString("pocketmine.server.defaultGameMode", [Server::getGamemodeString($this->getServer()->getGamemode())]) . PHP_EOL . PHP_EOL . "#" . $this->getServer()->getMotd(), self::$defaultChannel);
     }
 
 

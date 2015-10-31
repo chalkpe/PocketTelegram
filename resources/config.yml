@@ -31,6 +31,9 @@ broadcastTelegramMessages: true
 # Handles the command messages from the Telegram, e.g. '/chat_id', '/online'
 enableTelegramCommands: true
 
+# TODO: Description required
+broadcastServerStart: false
+
 
 
 #######################################
