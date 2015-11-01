@@ -15,6 +15,12 @@ defaultChannel: ""
 # A second is equals to 20. If it's a negative value, the updating will be disabled.
 updateInterval: 20
 
+# TODO: Description required
+minecraftUserPrefix: "~"
+
+# TODO: Description required
+telegramUserPrefix: "@"
+
 
 
 

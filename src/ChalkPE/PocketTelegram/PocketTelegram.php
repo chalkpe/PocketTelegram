@@ -94,7 +94,9 @@ class PocketTelegram extends PluginBase {
         self::$enableMarkdownParsing     = $this->getConfig()->get("enableMarkdownParsing",     false);
         self::$debugMode                 = $this->getConfig()->get("debugMode",                 false);
 
-        $this->getServer()->getPluginManager()->registerEvents(new EventHandler(), $this);
+        $handler = new EventHandler();
+        $this->getServer()->getPluginManager()->registerEvents($handler, $this);
+        $this->getServer()->getPluginManager()->subscribeToPermission(Server::BROADCAST_CHANNEL_USERS, $handler);
 
         PocketTelegram::getMe();
         PocketTelegram::getUpdates();
@@ -108,6 +110,7 @@ class PocketTelegram extends PluginBase {
      * @param string $message
      */
     public static function debug($message){
+        if(PocketTelegram::getInstance() === null) return;
         if(PocketTelegram::$debugMode) PocketTelegram::getInstance()->getLogger()->debug($message);
     }
 
@@ -192,7 +195,7 @@ class PocketTelegram extends PluginBase {
      * @param Message|int $replyToMessage
      */
     public static function sendMessage($message, $chatId, $replyToMessage = null){
-        if(is_null($message) or $message === "") return;
+        if(is_null($message) or $message === "" or is_null($chatId) or $chatId === "") return;
 
         if($message instanceof TextMessage){
             $message = $message->getText();
