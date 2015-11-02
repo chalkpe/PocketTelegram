@@ -25,7 +25,6 @@
 namespace ChalkPE\PocketTelegram;
 
 use ChalkPE\PocketTelegram\event\TelegramMessageEvent;
-use ChalkPE\PocketTelegram\model\message\Message;
 use ChalkPE\PocketTelegram\model\message\PhotoMessage;
 use ChalkPE\PocketTelegram\model\message\TextMessage;
 use pocketmine\command\ConsoleCommandSender;
@@ -33,6 +32,7 @@ use pocketmine\event\Listener;
 use pocketmine\event\player\PlayerJoinEvent;
 use pocketmine\Player;
 use pocketmine\Server;
+use pocketmine\utils\TextFormat;
 
 class EventHandler extends ConsoleCommandSender implements Listener {
     /** @var int[] */
@@ -42,10 +42,12 @@ class EventHandler extends ConsoleCommandSender implements Listener {
         return "PocketTelegram";
     }
 
+    //PocketMine -> Telegram
     public function sendMessage($message){
         if(PocketTelegram::$broadcastToTelegram) PocketTelegram::sendMessage($message, PocketTelegram::getDefaultChannel());
     }
 
+    //Telegram -> PocketMine
     public function onTelegramMessage(TelegramMessageEvent $event){
         if(!PocketTelegram::$broadcastTelegramMessages) return;
 
@@ -53,22 +55,30 @@ class EventHandler extends ConsoleCommandSender implements Listener {
         switch(true){
             case $message instanceof TextMessage:
                 if(PocketTelegram::$enableTelegramCommands and $message->isCommand()){
-                    self::handleCommands($message);
+                    self::handleTelegramCommands($message);
                     return;
                 }
+
+                $text = $message->getText();
                 break;
 
-            case $message instanceof PhotoMessage: break;
+            case $message instanceof PhotoMessage:
+                $text = "(Photo)";
+                break;
+
             default: return;
         }
 
-        $this->broadcastMessage($message);
+        if($message->getChat()->getId() !== PocketTelegram::getDefaultChannel()) return;
+        if(is_null($from = $message->getFrom()) or is_null($username = $from->getUsername())) return;
+
+        $this->broadcastMessage(PocketTelegram::getInstance()->getConfig()->get("telegramUserPrefix", "@") . $username, TextFormat::clean($text));
     }
 
     /**
      * @param TextMessage $message
      */
-    private static function handleCommands(TextMessage $message){
+    private static function handleTelegramCommands(TextMessage $message){
         $chatId = $message->getChat()->getId();
         if(!isset(self::$lastCommand[$chatId])) self::$lastCommand[$chatId] = 0;
         if((time() - self::$lastCommand[$chatId]) < 2) return;
@@ -92,14 +102,11 @@ class EventHandler extends ConsoleCommandSender implements Listener {
         self::$lastCommand[$chatId] = time();
     }
 
-    private function broadcastMessage(Message $message){
-        if($message->getChat()->getId() !== PocketTelegram::getDefaultChannel()) return;
-        if(is_null($from = $message->getFrom()) or is_null($username = $from->getUsername())) return;
+    private function broadcastMessage($username, $message){
+        $recipients = array_filter(Server::getInstance()->getPluginManager()->getPermissionSubscriptions(Server::BROADCAST_CHANNEL_USERS), function($recipient){ return !($recipient instanceof EventHandler); });
+        $lines = explode("\n", $message);
 
-        if($message instanceof TextMessage)  $message = $message->getText();
-        else if($message instanceof PhotoMessage) $message = "(Photo)";
-
-        Server::getInstance()->broadcastMessage(PocketTelegram::translateString("chat.type.text", [PocketTelegram::getInstance()->getConfig()->get("telegramUserPrefix", "@") . $username, $message]), array_filter(Server::getInstance()->getPluginManager()->getPermissionSubscriptions(Server::BROADCAST_CHANNEL_USERS), function($recipient){ return !($recipient instanceof EventHandler); }));
+        foreach($lines as $line) Server::getInstance()->broadcastMessage(PocketTelegram::translateString("chat.type.text", [$username, $line]), $recipients);
     }
 
     public function onPlayerJoin(PlayerJoinEvent $event){
