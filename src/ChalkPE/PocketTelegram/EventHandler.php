@@ -27,9 +27,12 @@ namespace ChalkPE\PocketTelegram;
 use ChalkPE\PocketTelegram\event\TelegramMessageEvent;
 use ChalkPE\PocketTelegram\model\message\PhotoMessage;
 use ChalkPE\PocketTelegram\model\message\TextMessage;
+use pocketmine\command\Command;
 use pocketmine\command\ConsoleCommandSender;
 use pocketmine\event\Listener;
 use pocketmine\event\player\PlayerJoinEvent;
+use pocketmine\event\player\PlayerQuitEvent;
+use pocketmine\event\TranslationContainer;
 use pocketmine\Player;
 use pocketmine\Server;
 use pocketmine\utils\TextFormat;
@@ -55,7 +58,7 @@ class EventHandler extends ConsoleCommandSender implements Listener {
         switch(true){
             case $message instanceof TextMessage:
                 if(PocketTelegram::$enableTelegramCommands and $message->isCommand()){
-                    self::handleTelegramCommands($message);
+                    $this->handleTelegramCommands($message);
                     return;
                 }
 
@@ -78,7 +81,9 @@ class EventHandler extends ConsoleCommandSender implements Listener {
     /**
      * @param TextMessage $message
      */
-    private static function handleTelegramCommands(TextMessage $message){
+    private function handleTelegramCommands(TextMessage $message){
+        if(time() - $message->getDate() > 30) return;
+
         $chatId = $message->getChat()->getId();
         if(!isset(self::$lastCommand[$chatId])) self::$lastCommand[$chatId] = 0;
         if((time() - self::$lastCommand[$chatId]) < 2) return;
@@ -98,6 +103,13 @@ class EventHandler extends ConsoleCommandSender implements Listener {
                 $players = array_map(function(Player $player){ return $player->getDisplayName(); }, array_filter(Server::getInstance()->getOnlinePlayers(), function(Player $player){ return $player->isOnline(); }));
                 PocketTelegram::sendMessage(PocketTelegram::translateString("commands.players.list", [count($players), Server::getInstance()->getMaxPlayers()]) . PHP_EOL . implode(", " , $players), $message->getChat(), $message);
                 break;
+
+            case "stop":
+                if(!is_null($from = $message->getFrom()) and !is_null($username = $from->getUsername()) and Server::getInstance()->getOfflinePlayer($username)->isOp()){
+                    Command::broadcastCommandMessage($this, new TranslationContainer("commands.stop.start"));
+                    Server::getInstance()->shutdown();
+                }
+                break;
         }
         self::$lastCommand[$chatId] = time();
     }
@@ -111,5 +123,10 @@ class EventHandler extends ConsoleCommandSender implements Listener {
 
     public function onPlayerJoin(PlayerJoinEvent $event){
         $event->getPlayer()->setDisplayName(PocketTelegram::getInstance()->getConfig()->get("minecraftUserPrefix", "~") . $event->getPlayer()->getDisplayName());
+    }
+
+    public function onPlayerQuit(PlayerQuitEvent $event){
+        $event->getPlayer()->setDisplayName(substr($event->getPlayer()->getDisplayName(), strlen(PocketTelegram::getInstance()->getConfig()->get("minecraftUserPrefix", "~"))));
+        $event->setQuitMessage($event->getPlayer()->getLeaveMessage());
     }
 }
